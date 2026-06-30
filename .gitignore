@@ -29,3 +29,6 @@ materials/
 
 # 채널 변환 샘플(형식 데모) — 공개 repo에서 제외
 drafts/
+
+# 시나리오 디자인 미리보기(내부용)
+scenario.html

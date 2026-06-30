@@ -121,7 +121,7 @@ import Footer from '../../components/Footer.astro';
 				}
 				errEl.classList.add('hidden');
 				goBtn.disabled = true;
-				statusEl.innerHTML = '<span class="spin"></span>생성 중… (10~30초)';
+				statusEl.innerHTML = '<span class="spin"></span>생성 중… (구독 경로, 약 1분)';
 				try {
 					const r = await fetch('/api/generate', {
 						method: 'POST',
