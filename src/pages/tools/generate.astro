@@ -244,7 +244,7 @@ import Footer from '../../components/Footer.astro';
 				const box = $('img_' + id);
 				const r = data[id];
 				if (id === 'instagram') {
-					box.innerHTML = `<h4>🖼️ 카드뉴스 (${r.cards.length}장) — 로컬 생성</h4><div class="cards-row" id="cards_${id}"></div><button class="dl" data-allcards="${id}">전체 저장</button>`;
+					box.innerHTML = `<h4>🖼️ 카드뉴스 (${r.cards.length}장)</h4><div class="cards-row" id="cards_${id}"></div><button class="dl" data-allcards="${id}">로컬 이미지 전체 저장</button> <button class="dl" data-igmiri style="background:#e0f7f8;border-color:#9fe3e6">🎨 미리캔버스로 (카드텍스트 복사)</button>`;
 					const row = $('cards_' + id);
 					r.cards.forEach((cd, i) => {
 						const url = renderCard({ w: 1080, h: 1080, kicker: `${i + 1} / ${r.cards.length}`, headline: i === 0 ? r.thumbnail.headline : cd.heading, sub: i === 0 ? r.thumbnail.sub : cd.body, color: '#c4239f', theme: 'grad' });
@@ -256,6 +256,13 @@ import Footer from '../../components/Footer.astro';
 						const url = renderCard({ w: 1080, h: 1080, kicker: `${i + 1} / ${r.cards.length}`, headline: i === 0 ? r.thumbnail.headline : cd.heading, sub: i === 0 ? r.thumbnail.sub : cd.body, color: '#c4239f', theme: 'grad' });
 						download(url, `insta_${i + 1}.png`);
 					}));
+					box.querySelector('[data-igmiri]').addEventListener('click', async () => {
+						const txt = ['[표지] ' + r.thumbnail.headline + '\n' + r.thumbnail.sub, ...r.cards.map((cd, i) => `[카드 ${i + 1}] ${cd.heading}\n${cd.body}`)].join('\n\n');
+						await navigator.clipboard.writeText(txt);
+						let miri = {};
+						try { miri = JSON.parse(localStorage.getItem('miri-templates-v1') || '{}'); } catch {}
+						window.open(miri.instagram || 'https://www.miricanvas.com/v2/ko/design2', '_blank', 'noopener');
+					});
 					return;
 				}
 				if (id === 'naver') {

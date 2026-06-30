@@ -25,6 +25,9 @@ import Footer from '../../components/Footer.astro';
 			button,a.b{cursor:pointer;border:0;border-radius:8px;font-weight:700;text-decoration:none;display:inline-block;font-size:.86rem}
 			.go{background:var(--ink);color:#fff;padding:.55rem 1rem}
 			.cp{background:#f0f0f0;color:#222;padding:.55rem .9rem}
+			.mi{background:#00c4cc;color:#06343a;padding:.55rem .9rem}
+			details summary{list-style:none}
+			details summary::-webkit-details-marker{display:none}
 			.note{font-size:.84rem;color:#555;background:#f7f8fa;border:1px solid var(--line);border-radius:10px;padding:.8rem .9rem;margin-top:.4rem}
 			.note code{background:#eceef1;padding:.05rem .35rem;border-radius:5px;font-size:.82rem}
 			#err{color:#c0392b;font-weight:600;font-size:.85rem}
@@ -45,6 +48,12 @@ import Footer from '../../components/Footer.astro';
 				<input id="link" type="text" placeholder="https://blog.naver.com/..." autocomplete="off" />
 				<p id="err" style="margin-top:.5rem"></p>
 			</div>
+
+			<details class="card" id="miriSet">
+				<summary style="cursor:pointer;font-weight:700;font-size:.92rem">🎨 미리캔버스 템플릿 설정 (한 번만) ▾</summary>
+				<p class="hint" style="margin-top:.5rem">채널마다 미리 만든 미리캔버스 템플릿을 <b>공유 → 링크 복사</b>해서 아래에 붙여넣으면, 각 채널 ‘🎨 미리캔버스’ 버튼이 <b>그 템플릿으로 바로</b> 열립니다. (비워두면 새 디자인으로 열림) · 인스타=카드뉴스 1080×1080, 블로그스팟=썸네일 1200×630 권장</p>
+				<div id="miriInputs"></div>
+			</details>
 
 			<div class="grid" id="grid"></div>
 
@@ -110,10 +119,30 @@ import Footer from '../../components/Footer.astro';
 			}
 
 			$('grid').innerHTML = CH.map(
-				(c) => `<div class="ch"><h3>${c.emoji} ${c.label}</h3><p>${c.desc}</p><div class="btns"><button class="go" data-go="${c.id}">Claude에서 작성 →</button><button class="cp" data-cp="${c.id}">프롬프트 복사</button></div></div>`,
+				(c) => `<div class="ch"><h3>${c.emoji} ${c.label}</h3><p>${c.desc}</p><div class="btns"><button class="go" data-go="${c.id}">Claude에서 작성 →</button><button class="mi" data-mi="${c.id}">🎨 미리캔버스</button><button class="cp" data-cp="${c.id}">프롬프트 복사</button></div></div>`,
 			).join('');
 			$('grid').querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => launch(CH.find((c) => c.id === b.dataset.go))));
 			$('grid').querySelectorAll('[data-cp]').forEach((b) => b.addEventListener('click', () => copyPrompt(CH.find((c) => c.id === b.dataset.cp), b)));
+
+			// ── 미리캔버스 연동 (채널별 템플릿 URL을 localStorage에) ──
+			const MIRI_KEY = 'miri-templates-v1';
+			const DEFAULT_MIRI = 'https://www.miricanvas.com/v2/ko/design2';
+			let miri = {};
+			try { miri = JSON.parse(localStorage.getItem(MIRI_KEY) || '{}'); } catch {}
+			function saveMiri() { localStorage.setItem(MIRI_KEY, JSON.stringify(miri)); }
+			function openMiri(id) { window.open(miri[id] || DEFAULT_MIRI, '_blank', 'noopener'); }
+			$('grid').querySelectorAll('[data-mi]').forEach((b) => b.addEventListener('click', () => openMiri(b.dataset.mi)));
+			$('miriInputs').innerHTML = CH.map(
+				(c) => `<label style="font-size:.82rem;margin-top:.5rem">${c.emoji} ${c.label} 템플릿 URL</label><input type="text" data-miri="${c.id}" value="${(miri[c.id] || '').replace(/"/g, '&quot;')}" placeholder="공유 → 링크 복사 한 미리캔버스 URL 붙여넣기">`,
+			).join('');
+			$('miriInputs').querySelectorAll('[data-miri]').forEach((inp) =>
+				inp.addEventListener('change', () => {
+					const v = inp.value.trim();
+					if (v) miri[inp.dataset.miri] = v;
+					else delete miri[inp.dataset.miri];
+					saveMiri();
+				}),
+			);
 		</script>
 	</body>
 </html>
