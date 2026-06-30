@@ -22,3 +22,7 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# 개인/유료 원본 자료 — 공개 repo에 올리지 않음
+materials/
+.vercel

@@ -1,0 +1,195 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+---
+
+<!doctype html>
+<html lang="ko">
+	<head>
+		<BaseHead title="원클릭 멀티채널 글 생성기" description="주제어 하나로 고CPC 키워드·SEO 제목·채널별 본문을 한 번에 뽑는 발행 도구" />
+		<style>
+			main { max-width: 980px; margin: 0 auto; padding: 1rem; }
+			h1 { font-size: 1.8rem; margin: .2rem 0; }
+			.sub { color: #555; margin: 0 0 1.2rem; font-size: .95rem; }
+			.card { border: 1px solid #e6e6e6; border-radius: 12px; padding: 1rem 1.1rem; margin: 0 0 1rem; background: #fff; }
+			label { display:block; font-weight: 700; margin: .4rem 0 .25rem; font-size: .9rem; }
+			input[type=text] { width: 100%; padding: .6rem .7rem; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
+			.hint { color:#888; font-size: .8rem; margin:.25rem 0 0; }
+			.row { display:flex; gap:.6rem; flex-wrap: wrap; align-items: flex-end; }
+			.row > div { flex: 1 1 240px; }
+			button { cursor: pointer; border: 0; border-radius: 8px; padding: .65rem 1.1rem; font-size: 1rem; font-weight: 700; }
+			.primary { background:#111; color:#fff; }
+			.primary:disabled { opacity:.5; cursor: not-allowed; }
+			.copy { background:#f0f0f0; color:#222; font-size:.8rem; padding:.35rem .7rem; }
+			.chips { display:flex; flex-wrap:wrap; gap:.4rem; margin:.5rem 0; }
+			.chip { background:#f4f4f6; border:1px solid #e3e3e8; border-radius: 999px; padding:.25rem .6rem; font-size:.82rem; }
+			.chip b { color:#111; }
+			.kw { display:grid; grid-template-columns: auto 1fr auto; gap:.5rem; align-items:center; padding:.35rem 0; border-bottom:1px dashed #eee; font-size:.9rem; }
+			.kw .tier { font-size:.95rem; }
+			.kw .rsn { color:#666; font-size:.8rem; }
+			.titles li { margin:.2rem 0; }
+			.tag { display:inline-block; font-size:.7rem; background:#eef; color:#225; border-radius:4px; padding:0 .35rem; margin-right:.4rem; }
+			textarea { width:100%; min-height: 240px; padding:.7rem; border:1px solid #ccc; border-radius:8px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.85rem; line-height:1.5; box-sizing:border-box; }
+			.head { display:flex; justify-content:space-between; align-items:center; margin-bottom:.4rem; }
+			.head h3 { margin:0; font-size:1.05rem; }
+			.muted { color:#999; }
+			#error { color:#c0392b; font-weight:600; }
+			#status { color:#555; }
+			.hidden { display:none; }
+			.spin { display:inline-block; width:14px;height:14px;border:2px solid #ccc;border-top-color:#111;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px;margin-right:.4rem;}
+			@keyframes spin { to { transform: rotate(360deg);} }
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1>🛠️ 원클릭 멀티채널 글 생성기</h1>
+			<p class="sub">주제어 하나만 넣으면 → 고CPC 키워드 추천 + SEO 제목 + <b>네이버용·블로거용 본문 2종</b>을 뽑아 바로 복붙할 수 있어요.</p>
+
+			<div class="card">
+				<div class="row">
+					<div>
+						<label for="topic">주제어 (필수)</label>
+						<input id="topic" type="text" placeholder="예: 자동차보험, 근로장려금, 토스 해외주식" autocomplete="off" />
+						<p class="hint">넓은 주제를 넣으면 엔진이 돈 되는 키워드를 추천합니다.</p>
+					</div>
+					<div>
+						<label for="keyword">핵심 키워드 직접 지정 (선택)</label>
+						<input id="keyword" type="text" placeholder="비워두면 추천만, 넣으면 그 키워드로 작성" autocomplete="off" />
+						<p class="hint">내가 노리는 키워드가 있으면 여기에. (직접 입력 + 추천 둘 다 지원)</p>
+					</div>
+				</div>
+				<div style="margin-top:.8rem;display:flex;gap:.6rem;align-items:center;">
+					<button id="go" class="primary">글 생성하기</button>
+					<span id="status"></span>
+				</div>
+				<p id="error" class="hidden"></p>
+			</div>
+
+			<section id="results" class="hidden">
+				<div class="card">
+					<div class="head"><h3>🎯 추천 키워드</h3><span id="primary" class="muted"></span></div>
+					<div id="keywords"></div>
+				</div>
+
+				<div class="card">
+					<div class="head"><h3>✍️ SEO 제목 후보</h3></div>
+					<ul id="titles" class="titles"></ul>
+				</div>
+
+				<div class="card">
+					<div class="head">
+						<h3>🔵 네이버 블로그용 (애드포스트)</h3>
+						<div>
+							<button class="copy" data-copy="naverBody">본문 복사</button>
+							<button class="copy" data-copy="naverTags">해시태그 복사</button>
+						</div>
+					</div>
+					<div id="naverTitle" style="font-weight:700;margin:.2rem 0 .5rem;"></div>
+					<textarea id="naverBody" spellcheck="false"></textarea>
+					<div id="naverTagsView" class="chips" style="margin-top:.5rem;"></div>
+				</div>
+
+				<div class="card">
+					<div class="head">
+						<h3>🟠 구글 Blogger용 (애드센스)</h3>
+						<button class="copy" data-copy="blogspotBody">본문 복사</button>
+					</div>
+					<div id="blogspotTitle" style="font-weight:700;margin:.2rem 0 .5rem;"></div>
+					<textarea id="blogspotBody" spellcheck="false"></textarea>
+				</div>
+
+				<p class="hint">⚠️ AI 초안입니다. 발행 전 수치·사실을 꼭 확인하고 한 번 다듬어 올리세요(특히 보험·대출·세금 등).</p>
+			</section>
+		</main>
+		<Footer />
+
+		<script>
+			const $ = (id: string) => document.getElementById(id) as HTMLElement;
+			const goBtn = $('go') as HTMLButtonElement;
+			const statusEl = $('status');
+			const errEl = $('error');
+			const results = $('results');
+
+			async function generate() {
+				const topic = ($('topic') as HTMLInputElement).value.trim();
+				const keyword = ($('keyword') as HTMLInputElement).value.trim();
+				if (!topic && !keyword) {
+					show(errEl, '주제어 또는 키워드를 입력해주세요.');
+					return;
+				}
+				errEl.classList.add('hidden');
+				goBtn.disabled = true;
+				statusEl.innerHTML = '<span class="spin"></span>생성 중… (10~30초)';
+				try {
+					const r = await fetch('/api/generate', {
+						method: 'POST',
+						headers: { 'content-type': 'application/json' },
+						body: JSON.stringify({ topic, keyword }),
+					});
+					const data = await r.json();
+					if (!r.ok || data.error) throw new Error(data.error || '생성 실패');
+					render(data.result);
+					statusEl.textContent = '완료 ✓';
+				} catch (e) {
+					show(errEl, (e as Error).message);
+					statusEl.textContent = '';
+				} finally {
+					goBtn.disabled = false;
+				}
+			}
+
+			function show(el: HTMLElement, msg: string) {
+				el.textContent = msg;
+				el.classList.remove('hidden');
+			}
+
+			function render(res: any) {
+				$('primary').textContent = '핵심: ' + res.primaryKeyword;
+
+				$('keywords').innerHTML = (res.recommendedKeywords || [])
+					.map(
+						(k: any) =>
+							`<div class="kw"><span class="tier">${k.cpcTier}</span><span><b>${esc(k.keyword)}</b> <span class="tag">${esc(k.category)}</span><div class="rsn">${esc(k.reason)}</div></span></div>`,
+					)
+					.join('');
+
+				$('titles').innerHTML = (res.titles || [])
+					.map((t: any) => `<li><span class="tag">${esc(t.type)}</span>${esc(t.title)}</li>`)
+					.join('');
+
+				$('naverTitle').textContent = res.naver?.title || '';
+				($('naverBody') as HTMLTextAreaElement).value = res.naver?.body || '';
+				const tags = res.naver?.hashtags || [];
+				$('naverTagsView').innerHTML = tags.map((t: string) => `<span class="chip">#${esc(t)}</span>`).join('');
+				($('naverBody') as HTMLTextAreaElement).dataset.tags = tags.map((t: string) => '#' + t).join(' ');
+
+				$('blogspotTitle').textContent = res.blogspot?.title || '';
+				($('blogspotBody') as HTMLTextAreaElement).value = res.blogspot?.body || '';
+
+				results.classList.remove('hidden');
+				results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}
+
+			function esc(s: string) {
+				return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] as string);
+			}
+
+			document.querySelectorAll('.copy').forEach((btn) => {
+				btn.addEventListener('click', async () => {
+					const key = (btn as HTMLElement).dataset.copy!;
+					let text = '';
+					if (key === 'naverTags') text = ($('naverBody') as HTMLTextAreaElement).dataset.tags || '';
+					else text = ($(key) as HTMLTextAreaElement).value;
+					await navigator.clipboard.writeText(text);
+					const old = btn.textContent;
+					btn.textContent = '복사됨 ✓';
+					setTimeout(() => (btn.textContent = old), 1200);
+				});
+			});
+
+			goBtn.addEventListener('click', generate);
+		</script>
+	</body>
+</html>
