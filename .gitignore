@@ -32,3 +32,6 @@ drafts/
 
 # 시나리오 디자인 미리보기(내부용)
 scenario.html
+
+# 채널별 프롬프트 팩(전략 포함) — 비공개
+claude-channels/

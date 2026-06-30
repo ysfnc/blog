@@ -7,189 +7,386 @@ import Footer from '../../components/Footer.astro';
 <!doctype html>
 <html lang="ko">
 	<head>
-		<BaseHead title="원클릭 멀티채널 글 생성기" description="주제어 하나로 고CPC 키워드·SEO 제목·채널별 본문을 한 번에 뽑는 발행 도구" />
-		<style>
-			main { max-width: 980px; margin: 0 auto; padding: 1rem; }
-			h1 { font-size: 1.8rem; margin: .2rem 0; }
-			.sub { color: #555; margin: 0 0 1.2rem; font-size: .95rem; }
-			.card { border: 1px solid #e6e6e6; border-radius: 12px; padding: 1rem 1.1rem; margin: 0 0 1rem; background: #fff; }
-			label { display:block; font-weight: 700; margin: .4rem 0 .25rem; font-size: .9rem; }
-			input[type=text] { width: 100%; padding: .6rem .7rem; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
-			.hint { color:#888; font-size: .8rem; margin:.25rem 0 0; }
-			.row { display:flex; gap:.6rem; flex-wrap: wrap; align-items: flex-end; }
-			.row > div { flex: 1 1 240px; }
-			button { cursor: pointer; border: 0; border-radius: 8px; padding: .65rem 1.1rem; font-size: 1rem; font-weight: 700; }
-			.primary { background:#111; color:#fff; }
-			.primary:disabled { opacity:.5; cursor: not-allowed; }
-			.copy { background:#f0f0f0; color:#222; font-size:.8rem; padding:.35rem .7rem; }
-			.chips { display:flex; flex-wrap:wrap; gap:.4rem; margin:.5rem 0; }
-			.chip { background:#f4f4f6; border:1px solid #e3e3e8; border-radius: 999px; padding:.25rem .6rem; font-size:.82rem; }
-			.chip b { color:#111; }
-			.kw { display:grid; grid-template-columns: auto 1fr auto; gap:.5rem; align-items:center; padding:.35rem 0; border-bottom:1px dashed #eee; font-size:.9rem; }
-			.kw .tier { font-size:.95rem; }
-			.kw .rsn { color:#666; font-size:.8rem; }
-			.titles li { margin:.2rem 0; }
-			.tag { display:inline-block; font-size:.7rem; background:#eef; color:#225; border-radius:4px; padding:0 .35rem; margin-right:.4rem; }
-			textarea { width:100%; min-height: 240px; padding:.7rem; border:1px solid #ccc; border-radius:8px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.85rem; line-height:1.5; box-sizing:border-box; }
-			.head { display:flex; justify-content:space-between; align-items:center; margin-bottom:.4rem; }
-			.head h3 { margin:0; font-size:1.05rem; }
-			.muted { color:#999; }
-			#error { color:#c0392b; font-weight:600; }
-			#status { color:#555; }
-			.hidden { display:none; }
-			.spin { display:inline-block; width:14px;height:14px;border:2px solid #ccc;border-top-color:#111;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px;margin-right:.4rem;}
-			@keyframes spin { to { transform: rotate(360deg);} }
+		<BaseHead title="채널별 글 생성기" description="주제어 → 고CPC 키워드 → 채널별 맞춤 글 + 썸네일·카드뉴스·사진" />
+		<style is:global>
+			:root{--ink:#15161a;--muted:#6b6f76;--line:#e9e9ee;--bg:#f6f7f9;--card:#fff;--accent:#0a7c4a;--accent-soft:#e7f4ec;--gray-soft:#eef0f3;--shadow:0 1px 2px rgba(20,22,26,.04),0 6px 24px rgba(20,22,26,.05)}
+			main{max-width:980px;margin:0 auto;padding:1rem 1.1rem 80px}
+			h1{font-size:1.6rem;margin:.3rem 0 .15rem;letter-spacing:-.02em}
+			.sub{color:var(--muted);margin:0 0 1rem;font-size:.93rem}
+			.card{border:1px solid var(--line);border-radius:14px;padding:1rem 1.1rem;margin:0 0 1rem;background:var(--card);box-shadow:var(--shadow)}
+			label{display:block;font-weight:700;margin:.3rem 0 .25rem;font-size:.86rem}
+			input[type=text]{width:100%;padding:.6rem .7rem;border:1px solid #ccc;border-radius:8px;font-size:1rem;box-sizing:border-box}
+			.hint{color:#8a8f97;font-size:.78rem;margin:.25rem 0 0}
+			.row{display:flex;gap:.6rem;flex-wrap:wrap}
+			.row>div{flex:1 1 240px}
+			button{cursor:pointer;border:0;border-radius:8px;font-weight:700}
+			.primary{background:var(--ink);color:#fff;padding:.65rem 1.15rem;font-size:1rem}
+			.primary:disabled{opacity:.5;cursor:not-allowed}
+			.ghost{background:var(--gray-soft);color:#333;padding:.4rem .8rem;font-size:.8rem}
+			.copy{background:#f0f0f0;color:#222;font-size:.76rem;padding:.32rem .7rem}
+			#status,#cstatus{color:#555;font-size:.86rem}
+			.spin{display:inline-block;width:13px;height:13px;border:2px solid #ccc;border-top-color:#111;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-2px;margin-right:.35rem}
+			@keyframes spin{to{transform:rotate(360deg)}}
+			#error{color:#c0392b;font-weight:600}
+			.hidden{display:none}
+
+			.kw{display:grid;grid-template-columns:auto 1fr;gap:.5rem;align-items:start;padding:.35rem 0;border-bottom:1px dashed #eee;font-size:.9rem}
+			.kw .rsn{color:#888;font-size:.78rem}
+			.tag{display:inline-block;font-size:.68rem;background:#eef;color:#225;border-radius:4px;padding:0 .35rem;margin-left:.3rem}
+			.points{margin:.4rem 0 0;padding-left:1.1rem}
+			.points li{font-size:.88rem;margin:.15rem 0}
+
+			.tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin:.2rem 0 .8rem}
+			.tab{background:#fff;border:1px solid var(--line);border-radius:999px;padding:.45rem .9rem;font-size:.85rem;font-weight:700;color:#555;cursor:pointer;display:flex;align-items:center;gap:.4rem}
+			.tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+			.tab .dot{width:7px;height:7px;border-radius:50%;background:#ccc}
+			.tab.ready .dot{background:var(--accent)}
+
+			.panel{display:none}
+			.panel.active{display:block}
+			.gen-cta{text-align:center;padding:2rem 1rem;color:var(--muted)}
+			.head{display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap;margin:.2rem 0 .5rem}
+			.head h3{margin:0;font-size:1rem}
+			.kf{font-size:.82rem;color:var(--accent);background:var(--accent-soft);display:inline-block;padding:.2rem .6rem;border-radius:6px;margin:.2rem 0 .6rem}
+			.ttl{font-weight:700;font-size:1.05rem;margin:.1rem 0 .5rem}
+			textarea{width:100%;min-height:200px;padding:.7rem;border:1px solid #ccc;border-radius:8px;font-family:ui-monospace,Menlo,monospace;font-size:.83rem;line-height:1.55;box-sizing:border-box}
+			.chips{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0}
+			.chip{background:#f4f4f6;border:1px solid #e6e6ea;border-radius:999px;padding:.2rem .55rem;font-size:.78rem}
+			.imgbox{margin-top:.9rem;padding-top:.9rem;border-top:1px solid var(--line)}
+			.imgbox h4{margin:0 0 .5rem;font-size:.9rem}
+			.thumb{max-width:100%;border-radius:10px;border:1px solid var(--line);display:block}
+			.cards-row{display:flex;gap:.6rem;overflow-x:auto;padding:.3rem 0 .6rem}
+			.cards-row figure{margin:0;flex:0 0 auto;width:200px}
+			.cards-row img{width:200px;height:200px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+			.cards-row figcaption{font-size:.72rem;color:#999;text-align:center;margin-top:.2rem}
+			.drop{border:2px dashed #cfd3d9;border-radius:10px;padding:1rem;text-align:center;color:#8a8f97;font-size:.85rem;cursor:pointer;background:#fafbfc}
+			.drop.over{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+			.photos{display:flex;gap:.5rem;flex-wrap:wrap;margin:.6rem 0}
+			.photos figure{margin:0;position:relative}
+			.photos img{width:96px;height:96px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+			.photos .rep{position:absolute;top:3px;left:3px;background:var(--accent);color:#fff;font-size:.6rem;font-weight:700;padding:.05rem .3rem;border-radius:4px}
+			.slot{font-size:.84rem;color:#444;padding:.25rem 0 .25rem 1.1rem;position:relative}
+			.slot::before{content:"📷";position:absolute;left:0}
+			.dl{background:var(--accent-soft);color:var(--accent);font-size:.78rem;padding:.35rem .7rem;border:1px solid #cdead9}
 		</style>
 	</head>
 	<body>
 		<Header />
 		<main>
-			<h1>🛠️ 원클릭 멀티채널 글 생성기</h1>
-			<p class="sub">주제어 하나만 넣으면 → 고CPC 키워드 추천 + SEO 제목 + <b>네이버용·블로거용 본문 2종</b>을 뽑아 바로 복붙할 수 있어요.</p>
+			<h1>🛠️ 채널별 글 생성기</h1>
+			<p class="sub">주제어 → 고CPC 키워드 → <b>채널마다 맞춤</b> 글 + 썸네일·카드뉴스·사진. (생성=Claude 구독, 이미지=브라우저 로컬)</p>
 
 			<div class="card">
 				<div class="row">
 					<div>
 						<label for="topic">주제어 (필수)</label>
 						<input id="topic" type="text" placeholder="예: 자동차보험, 근로장려금, 토스 해외주식" autocomplete="off" />
-						<p class="hint">넓은 주제를 넣으면 엔진이 돈 되는 키워드를 추천합니다.</p>
 					</div>
 					<div>
 						<label for="keyword">핵심 키워드 직접 지정 (선택)</label>
-						<input id="keyword" type="text" placeholder="비워두면 추천만, 넣으면 그 키워드로 작성" autocomplete="off" />
-						<p class="hint">내가 노리는 키워드가 있으면 여기에. (직접 입력 + 추천 둘 다 지원)</p>
+						<input id="keyword" type="text" placeholder="비우면 추천만, 넣으면 그 키워드로" autocomplete="off" />
 					</div>
 				</div>
-				<div style="margin-top:.8rem;display:flex;gap:.6rem;align-items:center;">
-					<button id="go" class="primary">글 생성하기</button>
+				<div style="margin-top:.8rem;display:flex;gap:.6rem;align-items:center">
+					<button id="go" class="primary">① 키워드 조사하기</button>
 					<span id="status"></span>
 				</div>
 				<p id="error" class="hidden"></p>
 			</div>
 
-			<section id="results" class="hidden">
-				<div class="card">
-					<div class="head"><h3>🎯 추천 키워드</h3><span id="primary" class="muted"></span></div>
-					<div id="keywords"></div>
-				</div>
+			<div id="master" class="card hidden">
+				<div class="head"><h3>🎯 추천 키워드 &amp; 핵심 재료</h3><span id="primary" style="color:#999;font-size:.85rem"></span></div>
+				<div id="keywords"></div>
+				<div style="margin-top:.7rem"><b style="font-size:.86rem">핵심 포인트</b><ul id="points" class="points"></ul></div>
+				<div style="margin-top:.5rem;font-size:.85rem;color:#555"><b>관점</b> · <span id="angle"></span></div>
+			</div>
 
-				<div class="card">
-					<div class="head"><h3>✍️ SEO 제목 후보</h3></div>
-					<ul id="titles" class="titles"></ul>
-				</div>
+			<div id="channelArea" class="hidden">
+				<h3 style="margin:.6rem 0 .4rem;font-size:1.05rem">② 채널별로 글 받기</h3>
+				<div class="tabs" id="tabs"></div>
+				<div id="panels"></div>
+				<span id="cstatus"></span>
+			</div>
 
-				<div class="card">
-					<div class="head">
-						<h3>🔵 네이버 블로그용 (애드포스트)</h3>
-						<div>
-							<button class="copy" data-copy="naverBody">본문 복사</button>
-							<button class="copy" data-copy="naverTags">해시태그 복사</button>
-						</div>
-					</div>
-					<div id="naverTitle" style="font-weight:700;margin:.2rem 0 .5rem;"></div>
-					<textarea id="naverBody" spellcheck="false"></textarea>
-					<div id="naverTagsView" class="chips" style="margin-top:.5rem;"></div>
-				</div>
-
-				<div class="card">
-					<div class="head">
-						<h3>🟠 구글 Blogger용 (애드센스)</h3>
-						<button class="copy" data-copy="blogspotBody">본문 복사</button>
-					</div>
-					<div id="blogspotTitle" style="font-weight:700;margin:.2rem 0 .5rem;"></div>
-					<textarea id="blogspotBody" spellcheck="false"></textarea>
-				</div>
-
-				<p class="hint">⚠️ AI 초안입니다. 발행 전 수치·사실을 꼭 확인하고 한 번 다듬어 올리세요(특히 보험·대출·세금 등).</p>
-			</section>
+			<p class="hint" style="margin-top:1rem">⚠️ AI 초안입니다. 발행 전 수치·사실을 확인하세요(보험·대출·세금 등). 다계정·자동발행은 하지 않습니다(자사 채널·반자동).</p>
 		</main>
 		<Footer />
 
 		<script>
-			const $ = (id: string) => document.getElementById(id) as HTMLElement;
-			const goBtn = $('go') as HTMLButtonElement;
-			const statusEl = $('status');
-			const errEl = $('error');
-			const results = $('results');
+			const CH = [
+				{ id: 'naver', label: '네이버 블로그', color: '#03c75a' },
+				{ id: 'blogspot', label: '블로그스팟', color: '#ee6c00' },
+				{ id: 'threads', label: '스레드', color: '#111111' },
+				{ id: 'instagram', label: '인스타 카드뉴스', color: '#c4239f' },
+			];
+			const $ = (id) => document.getElementById(id);
+			let master = null;
+			const data = {}; // channel -> result
+			const photos = {}; // channel -> [dataURL]
+			let active = 'naver';
 
-			async function generate() {
-				const topic = ($('topic') as HTMLInputElement).value.trim();
-				const keyword = ($('keyword') as HTMLInputElement).value.trim();
-				if (!topic && !keyword) {
-					show(errEl, '주제어 또는 키워드를 입력해주세요.');
-					return;
-				}
-				errEl.classList.add('hidden');
-				goBtn.disabled = true;
-				statusEl.innerHTML = '<span class="spin"></span>생성 중… (구독 경로, 약 1분)';
+			// ── 마스터(키워드 조사) ──
+			$('go').addEventListener('click', runMaster);
+			async function runMaster() {
+				const topic = $('topic').value.trim(),
+					keyword = $('keyword').value.trim();
+				if (!topic && !keyword) return showErr('주제어 또는 키워드를 입력해주세요.');
+				$('error').classList.add('hidden');
+				$('go').disabled = true;
+				$('status').innerHTML = '<span class="spin"></span>키워드 조사 중…';
 				try {
 					const r = await fetch('/api/generate', {
 						method: 'POST',
 						headers: { 'content-type': 'application/json' },
-						body: JSON.stringify({ topic, keyword }),
+						body: JSON.stringify({ mode: 'master', topic, keyword }),
 					});
-					const data = await r.json();
-					if (!r.ok || data.error) throw new Error(data.error || '생성 실패');
-					render(data.result);
-					statusEl.textContent = '완료 ✓';
+					const d = await r.json();
+					if (!r.ok || d.error) throw new Error(d.error || '실패');
+					master = d.master;
+					renderMaster();
+					$('status').textContent = '완료 ✓ 아래에서 채널을 골라 글을 받으세요.';
 				} catch (e) {
-					show(errEl, (e as Error).message);
-					statusEl.textContent = '';
+					showErr(e.message);
+					$('status').textContent = '';
 				} finally {
-					goBtn.disabled = false;
+					$('go').disabled = false;
+				}
+			}
+			function showErr(m) {
+				$('error').textContent = m;
+				$('error').classList.remove('hidden');
+			}
+
+			function renderMaster() {
+				$('primary').textContent = '핵심: ' + master.primaryKeyword;
+				$('keywords').innerHTML = master.recommendedKeywords
+					.map((k) => `<div class="kw"><span>${k.cpcTier}</span><span><b>${esc(k.keyword)}</b><span class="tag">${esc(k.category)}</span><div class="rsn">${esc(k.reason)}</div></span></div>`)
+					.join('');
+				$('points').innerHTML = master.keyPoints.map((p) => `<li>${esc(p)}</li>`).join('');
+				$('angle').textContent = master.angle;
+				$('master').classList.remove('hidden');
+				$('channelArea').classList.remove('hidden');
+				renderTabs();
+				renderPanels();
+				selectTab(active);
+			}
+
+			// ── 탭 + 패널 ──
+			function renderTabs() {
+				$('tabs').innerHTML = CH.map((c) => `<button class="tab ${data[c.id] ? 'ready' : ''} ${c.id === active ? 'active' : ''}" data-tab="${c.id}"><span class="dot"></span>${c.label}</button>`).join('');
+				$('tabs').querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => selectTab(b.dataset.tab)));
+			}
+			function renderPanels() {
+				$('panels').innerHTML = CH.map((c) => `<div class="panel ${c.id === active ? 'active' : ''}" data-panel="${c.id}" id="panel_${c.id}"></div>`).join('');
+				CH.forEach((c) => paintPanel(c.id));
+			}
+			function selectTab(id) {
+				active = id;
+				$('tabs').querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === id));
+				$('panels').querySelectorAll('.panel').forEach((p) => p.classList.toggle('active', p.dataset.panel === id));
+			}
+
+			function paintPanel(id) {
+				const el = $('panel_' + id);
+				const c = CH.find((x) => x.id === id);
+				if (!data[id]) {
+					el.innerHTML = `<div class="card gen-cta"><p>아직 이 채널 글이 없어요.</p><button class="primary" data-gen="${id}">${c.label} 맞춤 글 받기</button></div>`;
+					el.querySelector('[data-gen]').addEventListener('click', () => runChannel(id));
+					return;
+				}
+				const r = data[id];
+				const tags = (r.hashtags || []).length ? `<div class="chips">${r.hashtags.map((t) => `<span class="chip">#${esc(t)}</span>`).join('')}</div><button class="copy" data-copy="tags:${id}">해시태그 복사</button>` : '';
+				el.innerHTML = `<div class="card">
+					<div class="head"><h3>${c.label}</h3><button class="ghost" data-gen="${id}">다시 받기</button></div>
+					<div class="kf">🎯 ${esc(r.keywordFocus)}</div>
+					<div class="ttl">${esc(r.title)}</div>
+					<div class="head"><h4 style="margin:0;font-size:.85rem">본문</h4><button class="copy" data-copy="body:${id}">본문 복사</button></div>
+					<textarea id="body_${id}" spellcheck="false">${esc(r.body)}</textarea>
+					${tags}
+					<div class="imgbox" id="img_${id}"></div>
+				</div>`;
+				el.querySelector('[data-gen]').addEventListener('click', () => runChannel(id));
+				el.querySelectorAll('[data-copy]').forEach((b) => b.addEventListener('click', () => doCopy(b.dataset.copy)));
+				paintImage(id);
+			}
+
+			async function runChannel(id) {
+				if (!master) return;
+				$('cstatus').innerHTML = `<span class="spin"></span>${CH.find((c) => c.id === id).label} 맞춤 글 생성 중… (약 40초)`;
+				try {
+					const r = await fetch('/api/generate', {
+						method: 'POST',
+						headers: { 'content-type': 'application/json' },
+						body: JSON.stringify({ mode: 'channel', channel: id, master }),
+					});
+					const d = await r.json();
+					if (!r.ok || d.error) throw new Error(d.error || '실패');
+					data[id] = d.result;
+					renderTabs();
+					paintPanel(id);
+					selectTab(id);
+					$('cstatus').textContent = '완료 ✓';
+				} catch (e) {
+					$('cstatus').textContent = '오류: ' + e.message;
 				}
 			}
 
-			function show(el: HTMLElement, msg: string) {
-				el.textContent = msg;
-				el.classList.remove('hidden');
+			function doCopy(key) {
+				const [type, id] = key.split(':');
+				let text = '';
+				if (type === 'body') text = $('body_' + id).value;
+				else if (type === 'tags') text = (data[id].hashtags || []).map((t) => '#' + t).join(' ');
+				navigator.clipboard.writeText(text);
 			}
 
-			function render(res: any) {
-				$('primary').textContent = '핵심: ' + res.primaryKeyword;
-
-				$('keywords').innerHTML = (res.recommendedKeywords || [])
-					.map(
-						(k: any) =>
-							`<div class="kw"><span class="tier">${k.cpcTier}</span><span><b>${esc(k.keyword)}</b> <span class="tag">${esc(k.category)}</span><div class="rsn">${esc(k.reason)}</div></span></div>`,
-					)
-					.join('');
-
-				$('titles').innerHTML = (res.titles || [])
-					.map((t: any) => `<li><span class="tag">${esc(t.type)}</span>${esc(t.title)}</li>`)
-					.join('');
-
-				$('naverTitle').textContent = res.naver?.title || '';
-				($('naverBody') as HTMLTextAreaElement).value = res.naver?.body || '';
-				const tags = res.naver?.hashtags || [];
-				$('naverTagsView').innerHTML = tags.map((t: string) => `<span class="chip">#${esc(t)}</span>`).join('');
-				($('naverBody') as HTMLTextAreaElement).dataset.tags = tags.map((t: string) => '#' + t).join(' ');
-
-				$('blogspotTitle').textContent = res.blogspot?.title || '';
-				($('blogspotBody') as HTMLTextAreaElement).value = res.blogspot?.body || '';
-
-				results.classList.remove('hidden');
-				results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			// ── 이미지: 채널별 ──
+			function paintImage(id) {
+				const box = $('img_' + id);
+				const r = data[id];
+				if (id === 'instagram') {
+					box.innerHTML = `<h4>🖼️ 카드뉴스 (${r.cards.length}장) — 로컬 생성</h4><div class="cards-row" id="cards_${id}"></div><button class="dl" data-allcards="${id}">전체 저장</button>`;
+					const row = $('cards_' + id);
+					r.cards.forEach((cd, i) => {
+						const url = renderCard({ w: 1080, h: 1080, kicker: `${i + 1} / ${r.cards.length}`, headline: i === 0 ? r.thumbnail.headline : cd.heading, sub: i === 0 ? r.thumbnail.sub : cd.body, color: '#c4239f', theme: 'grad' });
+						const fig = document.createElement('figure');
+						fig.innerHTML = `<img src="${url}" alt=""><figcaption><a href="${url}" download="insta_${i + 1}.png">저장</a></figcaption>`;
+						row.appendChild(fig);
+					});
+					box.querySelector('[data-allcards]').addEventListener('click', () => r.cards.forEach((cd, i) => {
+						const url = renderCard({ w: 1080, h: 1080, kicker: `${i + 1} / ${r.cards.length}`, headline: i === 0 ? r.thumbnail.headline : cd.heading, sub: i === 0 ? r.thumbnail.sub : cd.body, color: '#c4239f', theme: 'grad' });
+						download(url, `insta_${i + 1}.png`);
+					}));
+					return;
+				}
+				if (id === 'naver') {
+					box.innerHTML = `<h4>📷 사진 — 내 사진 업로드</h4>
+						${r.photoSlots.length ? '<div>' + r.photoSlots.map((s) => `<div class="slot">${esc(s)}</div>`).join('') + '</div>' : ''}
+						<div class="drop" id="drop_${id}">여기로 사진을 끌어다 놓거나 클릭해서 선택 (여러 장)</div>
+						<input type="file" accept="image/*" multiple class="hidden" id="file_${id}">
+						<div class="photos" id="ph_${id}"></div>
+						<button class="dl hidden" id="mkthumb_${id}">대표 사진에 제목 얹어 썸네일 만들기</button>
+						<div id="thumbout_${id}" style="margin-top:.6rem"></div>`;
+					wirePhotos(id, r);
+					return;
+				}
+				// blogspot / threads: 텍스트 썸네일
+				const w = id === 'blogspot' ? 1200 : 1080;
+				const h = id === 'blogspot' ? 630 : 1080;
+				const url = renderCard({ w, h, kicker: id === 'blogspot' ? '블로그스팟 대표' : 'THREADS', headline: r.thumbnail.headline, sub: r.thumbnail.sub, color: CH.find((c) => c.id === id).color, theme: 'dark' });
+				box.innerHTML = `<h4>🖼️ 썸네일 — 로컬 생성</h4><img class="thumb" src="${url}" alt=""><div style="margin-top:.5rem"><a class="dl" href="${url}" download="${id}_thumb.png">썸네일 저장</a></div>`;
 			}
 
-			function esc(s: string) {
-				return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] as string);
-			}
-
-			document.querySelectorAll('.copy').forEach((btn) => {
-				btn.addEventListener('click', async () => {
-					const key = (btn as HTMLElement).dataset.copy!;
-					let text = '';
-					if (key === 'naverTags') text = ($('naverBody') as HTMLTextAreaElement).dataset.tags || '';
-					else text = ($(key) as HTMLTextAreaElement).value;
-					await navigator.clipboard.writeText(text);
-					const old = btn.textContent;
-					btn.textContent = '복사됨 ✓';
-					setTimeout(() => (btn.textContent = old), 1200);
+			function wirePhotos(id, r) {
+				const drop = $('drop_' + id),
+					file = $('file_' + id),
+					wrap = $('ph_' + id);
+				photos[id] = photos[id] || [];
+				drop.addEventListener('click', () => file.click());
+				['dragover', 'dragleave', 'drop'].forEach((ev) =>
+					drop.addEventListener(ev, (e) => {
+						e.preventDefault();
+						drop.classList.toggle('over', ev === 'dragover');
+						if (ev === 'drop') addFiles(e.dataTransfer.files);
+					}),
+				);
+				file.addEventListener('change', () => addFiles(file.files));
+				function addFiles(list) {
+					[...list].forEach((f) => {
+						if (!f.type.startsWith('image/')) return;
+						const rd = new FileReader();
+						rd.onload = () => {
+							photos[id].push(rd.result);
+							paintPhotos();
+						};
+						rd.readAsDataURL(f);
+					});
+				}
+				function paintPhotos() {
+					wrap.innerHTML = photos[id].map((u, i) => `<figure><img src="${u}" alt="">${i === 0 ? '<span class="rep">대표</span>' : ''}</figure>`).join('');
+					$('mkthumb_' + id).classList.toggle('hidden', !photos[id].length);
+				}
+				$('mkthumb_' + id).addEventListener('click', () => {
+					if (!photos[id].length) return;
+					const out = $('thumbout_' + id);
+					renderPhotoThumb(photos[id][0], r.thumbnail.headline, (url) => {
+						out.innerHTML = `<img class="thumb" src="${url}" alt=""><div style="margin-top:.5rem"><a class="dl" href="${url}" download="naver_thumb.png">썸네일 저장</a></div>`;
+					});
 				});
-			});
+			}
 
-			goBtn.addEventListener('click', generate);
+			// ── Canvas 렌더링 ──
+			function wrapText(ctx, text, maxW) {
+				const lines = [];
+				let line = '';
+				for (const ch of text) {
+					if (ch === '\n') { lines.push(line); line = ''; continue; }
+					if (ctx.measureText(line + ch).width > maxW && line) { lines.push(line); line = ch; }
+					else line += ch;
+				}
+				if (line) lines.push(line);
+				return lines;
+			}
+			function renderCard({ w, h, kicker, headline, sub, color, theme }) {
+				const c = document.createElement('canvas');
+				c.width = w; c.height = h;
+				const x = c.getContext('2d');
+				if (theme === 'grad') {
+					const g = x.createLinearGradient(0, 0, w, h);
+					g.addColorStop(0, color); g.addColorStop(1, '#1c1030');
+					x.fillStyle = g;
+				} else { x.fillStyle = '#15161a'; }
+				x.fillRect(0, 0, w, h);
+				x.fillStyle = color; x.fillRect(0, 0, w * 0.018, h); // accent bar
+				const pad = w * 0.08;
+				const font = '"Apple SD Gothic Neo","Pretendard",-apple-system,sans-serif';
+				x.textBaseline = 'top';
+				x.fillStyle = color; x.font = `700 ${Math.round(w * 0.032)}px ${font}`;
+				x.fillText(kicker || '', pad, pad);
+				x.fillStyle = '#ffffff'; x.font = `800 ${Math.round(w * 0.072)}px ${font}`;
+				const lh = w * 0.088;
+				const lines = wrapText(x, headline || '', w - pad * 2).slice(0, 5);
+				let y = h * 0.32;
+				lines.forEach((l) => { x.fillText(l, pad, y); y += lh; });
+				if (sub) {
+					x.fillStyle = '#c9ccd2'; x.font = `500 ${Math.round(w * 0.036)}px ${font}`;
+					const sl = wrapText(x, sub, w - pad * 2).slice(0, 4);
+					y += lh * 0.3;
+					sl.forEach((l) => { x.fillText(l, pad, y); y += w * 0.05; });
+				}
+				return c.toDataURL('image/png');
+			}
+			function renderPhotoThumb(dataURL, headline, cb) {
+				const img = new Image();
+				img.onload = () => {
+					const W = 1200, H = 630;
+					const c = document.createElement('canvas');
+					c.width = W; c.height = H;
+					const x = c.getContext('2d');
+					// cover fit
+					const r = Math.max(W / img.width, H / img.height);
+					const iw = img.width * r, ih = img.height * r;
+					x.drawImage(img, (W - iw) / 2, (H - ih) / 2, iw, ih);
+					// dark gradient bottom
+					const g = x.createLinearGradient(0, H * 0.3, 0, H);
+					g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.78)');
+					x.fillStyle = g; x.fillRect(0, 0, W, H);
+					const font = '"Apple SD Gothic Neo",-apple-system,sans-serif';
+					x.textBaseline = 'bottom'; x.fillStyle = '#fff'; x.font = `800 ${Math.round(W * 0.06)}px ${font}`;
+					const pad = W * 0.06;
+					const lines = wrapText(x, headline || '', W - pad * 2).slice(0, 3);
+					let y = H - pad;
+					[...lines].reverse().forEach((l) => { x.fillText(l, pad, y); y -= W * 0.075; });
+					cb(c.toDataURL('image/png'));
+				};
+				img.src = dataURL;
+			}
+			function download(url, name) {
+				const a = document.createElement('a');
+				a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+			}
+			function esc(s) {
+				return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+			}
 		</script>
 	</body>
 </html>
