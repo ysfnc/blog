@@ -26,3 +26,6 @@ pnpm-debug.log*
 # 개인/유료 원본 자료 — 공개 repo에 올리지 않음
 materials/
 .vercel
+
+# 채널 변환 샘플(형식 데모) — 공개 repo에서 제외
+drafts/
