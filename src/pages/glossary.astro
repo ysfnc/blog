@@ -1,0 +1,83 @@
+---
+import StudioLayout from '../layouts/StudioLayout.astro';
+import { METRICS, TERMS, OUTDATED } from '../data/glossary';
+import { PRESETS, SEARCH_ENGINES } from '../data/presets';
+---
+
+<StudioLayout title="가이드" active="glossary">
+	<h1 class="page-h">📚 가이드 · 계산기 · 세팅</h1>
+	<p class="page-sub">수익 지표 계산기, 용어 사전, 플랫폼 세팅 프리셋, 검색엔진 등록까지 한 곳에.</p>
+
+	<h3 class="section-h">🧮 예상 수익 계산기</h3>
+	<div class="card">
+		<div class="grid grid-3">
+			<div class="field"><label>일 페이지뷰 (PV)</label><input type="number" id="c-pv" value="1000" /></div>
+			<div class="field"><label>클릭률 CTR (%)</label><input type="number" id="c-ctr" value="2" step="0.1" /></div>
+			<div class="field"><label>클릭당 단가 CPC (원)</label><input type="number" id="c-cpc" value="2000" /></div>
+		</div>
+		<div class="grid grid-3" id="c-out" style="margin-top:.3rem"></div>
+		<p class="hint" style="margin-top:.6rem">⚠️ CPC는 키워드·시즌에 따라 크게 변합니다. 고단가(보험·대출)는 3,000원↑, 트래픽형은 500~1,500원 범위로 가늠하세요.</p>
+	</div>
+
+	<h3 class="section-h">📊 핵심 지표</h3>
+	<div class="grid grid-2">
+		{METRICS.map((m) => (
+			<div class="card" style="box-shadow:none">
+				<b>{m.term}</b> {m.full && <span class="muted" style="font-size:.78rem">{m.full}</span>}
+				<div style="font-size:.86rem;margin:.2rem 0">{m.desc}</div>
+				{m.formula && <code class="mono" style="font-size:.8rem;background:var(--paper);padding:.15rem .4rem;border-radius:5px">{m.formula}</code>}
+			</div>
+		))}
+	</div>
+
+	<h3 class="section-h">📖 용어 사전</h3>
+	<div class="card">
+		{TERMS.map((t) => (
+			<div style="padding:.4rem 0;border-bottom:1px solid var(--line)"><b>{t.term}</b> <span style="font-size:.88rem">— {t.desc}</span></div>
+		))}
+		<div class="callout callout-gold" style="margin-top:.8rem">⛔ 구식 = 무시: {OUTDATED.join(' · ')} — 요즘은 효과 없거나 불필요합니다.</div>
+	</div>
+
+	<h3 class="section-h">⚙️ 플랫폼 세팅 프리셋</h3>
+	<div class="grid grid-2">
+		{PRESETS.map((p) => (
+			<details class="card" style="padding:.9rem 1rem">
+				<summary style="cursor:pointer;font-weight:700">{p.emoji} {p.platform} <span class="muted" style="font-weight:400;font-size:.8rem">· {p.monetize}</span></summary>
+				{p.groups.map((g) => (
+					<div style="margin-top:.6rem">
+						<b style="font-size:.84rem">{g.title}</b>
+						{g.items.map((it) => <div style="font-size:.83rem;padding:.1rem 0 .1rem .6rem">· {it}</div>)}
+					</div>
+				))}
+				{p.snippets && p.snippets.map((s) => (
+					<div style="margin-top:.6rem">
+						<b style="font-size:.8rem">{s.name}</b>
+						<pre class="mono" style="background:var(--paper);padding:.6rem;border-radius:8px;font-size:.76rem;overflow:auto;white-space:pre-wrap">{s.code}</pre>
+					</div>
+				))}
+			</details>
+		))}
+	</div>
+
+	<h3 class="section-h">🔎 검색엔진 등록 (색인 가속)</h3>
+	<div class="card">
+		<p class="hint" style="margin-top:0">글을 써도 검색에 안 뜨면 수익 0. 발행 후 아래에 사이트를 등록(출생신고)하세요.</p>
+		<div style="display:flex;gap:.5rem;flex-wrap:wrap">
+			{SEARCH_ENGINES.map((s) => <a class="btn btn-ghost btn-sm" href={s.url} target="_blank" rel="noopener">{s.name} ↗</a>)}
+		</div>
+	</div>
+</StudioLayout>
+
+<script>
+	import { estimate } from '../data/glossary';
+	const $ = (id: string) => document.getElementById(id) as HTMLInputElement;
+	function calc() {
+		const r = estimate(+$('c-pv').value || 0, +$('c-ctr').value || 0, +$('c-cpc').value || 0);
+		document.getElementById('c-out')!.innerHTML = `
+			<div class="card" style="box-shadow:none;text-align:center"><div class="muted" style="font-size:.78rem">일 클릭</div><b style="font-size:1.3rem">${r.clicks.toLocaleString()}</b></div>
+			<div class="card" style="box-shadow:none;text-align:center;background:var(--accent-soft);border-color:#bfe5d0"><div class="muted" style="font-size:.78rem">일 예상 수익</div><b style="font-size:1.3rem;color:var(--accent)">${r.revenue.toLocaleString()}원</b><div class="muted" style="font-size:.72rem">월 ${(r.revenue * 30).toLocaleString()}원</div></div>
+			<div class="card" style="box-shadow:none;text-align:center"><div class="muted" style="font-size:.78rem">RPM</div><b style="font-size:1.3rem">${r.rpm.toLocaleString()}원</b></div>`;
+	}
+	['c-pv', 'c-ctr', 'c-cpc'].forEach((id) => $(id).addEventListener('input', calc));
+	calc();
+</script>

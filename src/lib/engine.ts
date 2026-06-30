@@ -16,6 +16,7 @@ import {
 	type Master,
 	type ChannelOut,
 } from './channel-rules';
+import { groundingSample } from '../data/keywords';
 
 const execFileAsync = promisify(execFile);
 
@@ -116,7 +117,9 @@ export async function generateMaster(topic: string, keyword: string): Promise<Ma
 	const user = keyword
 		? `주제어: ${topic || keyword}\n사용자가 직접 지정한 핵심 키워드: ${keyword}\n이 키워드를 primaryKeyword로 사용하되 연관 고CPC 키워드도 추천하라.`
 		: `주제어: ${topic}\n이 주제에서 고CPC 키워드를 발굴해 가장 돈이 되는 것을 primaryKeyword로 골라라.`;
-	return runJSON(MASTER_SYSTEM, user, MasterSchema, MASTER_SHAPE);
+	// 실제 자료 기반 키워드 등급 grounding — CPC 등급을 임의로 지어내지 않게.
+	const grounded = `${MASTER_SYSTEM}\n\n## 실제 자료 기반 CPC 등급 기준 (★반드시 이 패턴으로 등급 부여, 임의 추정 금지)\n${groundingSample()}\n\n위 예시처럼 보험·대출·법률·세금·의료 등은 💰💰💰, 트래픽 큰 생활·시즌은 💰~💰💰, 단기 이슈는 🔥, 연중 꾸준은 📅로 분류하라.`;
+	return runJSON(grounded, user, MasterSchema, MASTER_SHAPE);
 }
 
 export async function generateChannel(channel: Channel, master: Master): Promise<ChannelOut> {

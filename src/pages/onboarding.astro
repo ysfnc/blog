@@ -1,0 +1,119 @@
+---
+import StudioLayout from '../layouts/StudioLayout.astro';
+import { STAGES, NICHES } from '../data/onboarding';
+const GOALS = ['광고수익', '제품홍보', '둘다'];
+const CHS = [
+	{ id: 'naver', label: '네이버 블로그' },
+	{ id: 'blogspot', label: '블로그스팟(구글)' },
+	{ id: 'threads', label: '스레드' },
+	{ id: 'instagram', label: '인스타 카드뉴스' },
+];
+---
+
+<StudioLayout title="시작하기" active="">
+	<span class="eyebrow">1:1 맞춤 설정</span>
+	<h1 class="page-h">몇 가지만 알려주시면, 딱 맞게 설계해 드릴게요</h1>
+	<p class="page-sub">지금 어디쯤인지에 따라 대시보드·추천이 달라집니다. 진행하면서 계속 진화해요.</p>
+
+	<div class="card" style="max-width:680px">
+		<div class="bar" style="margin-bottom:1rem"><i id="ob-bar" style="width:25%"></i></div>
+
+		<div class="ob-step" data-step="1">
+			<h3 class="section-h" style="margin-top:0">1. 무엇을 위해 하시나요?</h3>
+			<div class="field"><label>이름/닉네임 (선택)</label><input type="text" id="ob-name" placeholder="예: 상윤" /></div>
+			<label class="field" style="font-weight:700;font-size:.85rem">목표</label>
+			<div id="ob-goals" style="display:flex;gap:.5rem;flex-wrap:wrap">
+				{GOALS.map((g) => <button class="chip" data-goal={g}>{g}</button>)}
+			</div>
+		</div>
+
+		<div class="ob-step hidden" data-step="2">
+			<h3 class="section-h" style="margin-top:0">2. 지금 어디쯤이신가요?</h3>
+			<div class="grid" style="gap:.5rem">
+				{STAGES.map((s) => (
+					<button class="ob-card chip" data-stage={s.id} style="justify-content:flex-start;text-align:left;padding:.7rem .9rem;width:100%">
+						<b>{s.label}</b><span class="muted" style="font-size:.8rem;margin-left:.4rem">— {s.desc}</span>
+					</button>
+				))}
+			</div>
+		</div>
+
+		<div class="ob-step hidden" data-step="3">
+			<h3 class="section-h" style="margin-top:0">3. 어떤 채널을 쓸까요? (복수 선택)</h3>
+			<div id="ob-chs" style="display:flex;gap:.5rem;flex-wrap:wrap">
+				{CHS.map((c) => <button class="chip" data-ch={c.id}>{c.label}</button>)}
+			</div>
+		</div>
+
+		<div class="ob-step hidden" data-step="4">
+			<h3 class="section-h" style="margin-top:0">4. 주력 주제는?</h3>
+			<div id="ob-niche" style="display:flex;gap:.5rem;flex-wrap:wrap">
+				{NICHES.map((n) => <button class="chip" data-niche={n}>{n}</button>)}
+			</div>
+			<p class="hint" style="margin-top:.6rem">고단가(보험·금융·세금)일수록 광고 수익이 큽니다. 자사 제품 홍보면 마지막 항목.</p>
+		</div>
+
+		<div style="display:flex;justify-content:space-between;margin-top:1.2rem">
+			<button class="btn btn-ghost" id="ob-prev" style="visibility:hidden">← 이전</button>
+			<button class="btn btn-accent" id="ob-next">다음 →</button>
+		</div>
+	</div>
+
+	<p class="hint" style="margin-top:.8rem"><a href="/start">건너뛰고 대시보드로 →</a></p>
+</StudioLayout>
+
+<script>
+	const profile: any = { goal: '광고수익', stage: '', channels: [], niche: '' };
+	let step = 1;
+	const $ = (id: string) => document.getElementById(id)!;
+	const steps = document.querySelectorAll<HTMLElement>('.ob-step');
+
+	function show() {
+		steps.forEach((s) => s.classList.toggle('hidden', s.dataset.step !== String(step)));
+		($('ob-bar') as HTMLElement).style.width = step * 25 + '%';
+		($('ob-prev') as HTMLElement).style.visibility = step === 1 ? 'hidden' : 'visible';
+		$('ob-next').textContent = step === 4 ? '완료하고 시작하기 →' : '다음 →';
+	}
+	function pick(container: string, attr: string, key: string, multi = false) {
+		document.querySelectorAll(`#${container} [data-${attr}]`).forEach((b) => {
+			b.addEventListener('click', () => {
+				const v = (b as HTMLElement).dataset[attr]!;
+				if (multi) {
+					const arr = profile[key] as string[];
+					const i = arr.indexOf(v);
+					if (i >= 0) arr.splice(i, 1); else arr.push(v);
+					b.classList.toggle('sel');
+				} else {
+					document.querySelectorAll(`#${container} [data-${attr}]`).forEach((x) => x.classList.remove('sel'));
+					b.classList.add('sel');
+					profile[key] = v;
+				}
+			});
+		});
+	}
+	// stage cards (not in a #container) handled separately
+	document.querySelectorAll('[data-stage]').forEach((b) =>
+		b.addEventListener('click', () => {
+			document.querySelectorAll('[data-stage]').forEach((x) => x.classList.remove('sel'));
+			b.classList.add('sel');
+			profile.stage = (b as HTMLElement).dataset.stage;
+		}),
+	);
+	pick('ob-goals', 'goal', 'goal');
+	pick('ob-chs', 'ch', 'channels', true);
+	pick('ob-niche', 'niche', 'niche');
+
+	$('ob-next').addEventListener('click', () => {
+		if (step === 2 && !profile.stage) return alert('현재 단계를 선택해주세요.');
+		if (step === 3 && profile.channels.length === 0) return alert('채널을 하나 이상 선택해주세요.');
+		if (step < 4) { step++; show(); return; }
+		profile.name = ($('ob-name') as HTMLInputElement).value.trim() || undefined;
+		profile.createdAt = new Date().toISOString().slice(0, 10);
+		localStorage.setItem('studio-profile-v1', JSON.stringify(profile));
+		location.href = '/start';
+	});
+	$('ob-prev').addEventListener('click', () => { if (step > 1) { step--; show(); } });
+	// default goal selected
+	document.querySelector('[data-goal="광고수익"]')?.classList.add('sel');
+	show();
+</script>

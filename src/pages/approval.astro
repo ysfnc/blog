@@ -1,0 +1,108 @@
+---
+import StudioLayout from '../layouts/StudioLayout.astro';
+import { APPROVAL } from '../data/approval';
+---
+
+<StudioLayout title="광고 승인" active="approval">
+	<h1 class="page-h">✅ 광고 승인 마법사</h1>
+	<p class="page-sub">조건을 체크하며 합격 여부를 가늠하고, 애드센스 필수 페이지(소개·개인정보·문의)는 아래 생성기로 바로 만드세요.</p>
+
+	<div class="tabs" id="apr-tabs">
+		{APPROVAL.map((a, i) => <button class={`tab ${i === 0 ? 'active' : ''}`} data-t={a.key}>{a.title}</button>)}
+	</div>
+
+	{APPROVAL.map((a, i) => (
+		<div class={`apr-panel ${i === 0 ? '' : 'hidden'}`} data-panel={a.key}>
+			<div class="card">
+				<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.4rem">
+					<h3 class="section-h" style="margin:0">{a.title} 조건</h3>
+					<b class="badge badge-green" id={`apr-pct-${a.key}`}>0/{a.conditions.length}</b>
+				</div>
+				<p class="hint" style="margin:.2rem 0 .7rem">{a.subtitle}</p>
+				{a.conditions.map((c, j) => (
+					<label style="display:flex;align-items:flex-start;gap:.6rem;padding:.5rem .2rem;border-bottom:1px solid var(--line)">
+						<input type="checkbox" class="apr-chk" data-key={a.key} data-i={j} style="width:18px;height:18px;margin-top:.15rem;accent-color:var(--accent)" />
+						<span style="flex:1">
+							<b style="font-size:.92rem">{c.label}</b>{c.note && <span class="badge badge-gray" style="margin-left:.4rem">{c.note}</span>}
+							{c.detail && <div class="muted" style="font-size:.8rem">{c.detail}</div>}
+						</span>
+					</label>
+				))}
+				<div id={`apr-verdict-${a.key}`} style="margin-top:.8rem"></div>
+			</div>
+			<div class="card" style="margin-top:.9rem">
+				<h3 class="section-h" style="margin-top:0">신청 절차</h3>
+				<ol style="margin:0;padding-left:1.2rem">{a.steps.map((s) => <li style="font-size:.9rem;margin:.25rem 0">{s}</li>)}</ol>
+			</div>
+		</div>
+	))}
+
+	<h3 class="section-h">📄 필수 정책 페이지 생성기 <span class="muted" style="font-weight:400;font-size:.85rem">(애드센스 승인 필수)</span></h3>
+	<div class="card">
+		<div class="grid grid-2">
+			<div class="field"><label>사이트 이름</label><input type="text" id="pp-name" placeholder="예: 상윤의 생활정보" /></div>
+			<div class="field"><label>운영자 이름</label><input type="text" id="pp-owner" placeholder="예: 안상윤" /></div>
+			<div class="field"><label>이메일</label><input type="email" id="pp-email" placeholder="예: you@gmail.com" /></div>
+			<div class="field"><label>도메인</label><input type="text" id="pp-domain" placeholder="예: blog.example.com" /></div>
+		</div>
+		<button class="btn btn-accent" id="pp-gen">3개 페이지 생성 →</button>
+		<div id="pp-out" class="grid" style="margin-top:1rem"></div>
+	</div>
+</StudioLayout>
+
+<script>
+	import { privacyPolicy, aboutPage, contactPage, APPROVAL } from '../data/approval';
+
+	// 탭
+	const tabs = document.querySelectorAll<HTMLElement>('#apr-tabs .tab');
+	const panels = document.querySelectorAll<HTMLElement>('.apr-panel');
+	tabs.forEach((t) => t.addEventListener('click', () => {
+		tabs.forEach((x) => x.classList.remove('active')); t.classList.add('active');
+		panels.forEach((p) => p.classList.toggle('hidden', p.dataset.panel !== t.dataset.t));
+	}));
+
+	// 조건 체크 → 합격 가늠
+	const KEY = 'studio-approval-v1';
+	let state: Record<string, number[]> = {};
+	try { state = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch {}
+	function refresh(key: string) {
+		const a = APPROVAL.find((x) => x.key === key)!;
+		const got = (state[key] || []).length;
+		const tot = a.conditions.length;
+		document.getElementById(`apr-pct-${key}`)!.textContent = `${got}/${tot}`;
+		const v = document.getElementById(`apr-verdict-${key}`)!;
+		if (got === tot) v.innerHTML = `<div class="callout callout-green">✅ 조건 충족! 신청 절차로 진행하세요.</div>`;
+		else if (got >= tot - 1) v.innerHTML = `<div class="callout callout-gold">거의 다 됐어요 — 남은 ${tot - got}개만 보완.</div>`;
+		else v.innerHTML = `<div class="callout callout-gray">조건을 더 채운 뒤 신청하는 게 안전해요.</div>`;
+	}
+	document.querySelectorAll<HTMLInputElement>('.apr-chk').forEach((c) => {
+		const key = c.dataset.key!, i = Number(c.dataset.i);
+		if ((state[key] || []).includes(i)) c.checked = true;
+		c.addEventListener('change', () => {
+			state[key] = state[key] || [];
+			if (c.checked) state[key].push(i); else state[key] = state[key].filter((x) => x !== i);
+			localStorage.setItem(KEY, JSON.stringify(state)); refresh(key);
+		});
+	});
+	APPROVAL.forEach((a) => refresh(a.key));
+
+	// 정책 페이지 생성기
+	const $ = (id: string) => document.getElementById(id) as HTMLInputElement;
+	document.getElementById('pp-gen')!.addEventListener('click', () => {
+		const s = { siteName: $('pp-name').value || '내 블로그', ownerName: $('pp-owner').value || '운영자', email: $('pp-email').value || 'you@example.com', domain: $('pp-domain').value || 'example.com' };
+		const pages = [
+			{ name: '개인정보처리방침', text: privacyPolicy(s) },
+			{ name: '소개 (About)', text: aboutPage(s) },
+			{ name: '문의 (Contact)', text: contactPage(s) },
+		];
+		document.getElementById('pp-out')!.innerHTML = pages.map((p, i) => `
+			<div class="card" style="box-shadow:none">
+				<div style="display:flex;justify-content:space-between;align-items:center"><b>${p.name}</b><button class="btn btn-soft btn-sm" data-copy="${i}">복사</button></div>
+				<textarea id="pp-txt-${i}" style="min-height:160px;margin-top:.5rem">${p.text.replace(/</g, '&lt;')}</textarea>
+			</div>`).join('');
+		document.querySelectorAll<HTMLElement>('#pp-out [data-copy]').forEach((b) => b.addEventListener('click', async () => {
+			await navigator.clipboard.writeText(($(`pp-txt-${b.dataset.copy}`) as HTMLTextAreaElement).value);
+			const o = b.textContent; b.textContent = '복사됨 ✓'; setTimeout(() => (b.textContent = o), 1200);
+		}));
+	});
+</script>
