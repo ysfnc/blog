@@ -32,7 +32,7 @@ const all = allKeywords();
 						<span class="tier">{k.tiers.join('')}</span> <b>{k.kw}</b>
 						<div class="muted" style="font-size:.74rem">{k.source}{k.note ? ' · ' + k.note : ''}</div>
 					</div>
-					<a class="btn btn-soft btn-sm" href={`/tools/generate?topic=${encodeURIComponent(k.kw)}`}>글쓰기</a>
+					<a class="btn btn-soft btn-sm" href={`/pipeline?kw=${encodeURIComponent(k.kw)}`}>글쓰기</a>
 				</div>
 			))}
 		</div>

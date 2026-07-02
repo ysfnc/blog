@@ -5,6 +5,8 @@ import StudioLayout from '../layouts/StudioLayout.astro';
 <StudioLayout title="대시보드" active="start">
 	<div id="hero"></div>
 
+	<div class="grid grid-3" id="pub-stats" style="margin-top:1rem"></div>
+
 	<div class="card" style="margin-top:1rem">
 		<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
 			<h3 class="section-h" style="margin:0">📅 이번 달 시즌 키워드 <span id="month-tag" class="muted" style="font-weight:400;font-size:.85rem"></span></h3>
@@ -57,6 +59,16 @@ import StudioLayout from '../layouts/StudioLayout.astro';
 			<p style="color:#8a8e96;margin:.8rem 0 0;font-size:.82rem">다음 목표 · ${esc(sp.nextMilestone)}</p></div>`;
 	}
 
+	// ── 발행 실적(파이프라인 '발행 완료' 기록) ──
+	let pubs: any[] = [];
+	try { pubs = JSON.parse(localStorage.getItem('studio-pubs-v1') || '[]'); } catch {}
+	const week = pubs.filter((p) => (Date.now() - new Date(p.d).getTime()) / 86400000 <= 7).length;
+	const gold = pubs.filter((p) => (p.tier || '').includes('💰💰💰')).length;
+	$('pub-stats').innerHTML = `
+		<div class="card" style="text-align:center"><div class="muted" style="font-size:.78rem">총 발행</div><b style="font-size:1.5rem">${pubs.length}건</b></div>
+		<div class="card" style="text-align:center;background:var(--accent-soft);border-color:#bfe5d0"><div class="muted" style="font-size:.78rem">최근 7일</div><b style="font-size:1.5rem;color:var(--accent)">${week}건</b></div>
+		<div class="card" style="text-align:center"><div class="muted" style="font-size:.78rem">💰💰💰 고단가 글</div><b style="font-size:1.5rem">${gold}건</b></div>`;
+
 	// ── 이번 달 시즌 키워드 ──
 	const m = new Date().getMonth() + 1;
 	const mp = monthPlan(m);
@@ -66,7 +78,7 @@ import StudioLayout from '../layouts/StudioLayout.astro';
 		.map(
 			(k) => `<div class="card" style="padding:.6rem .8rem;display:flex;justify-content:space-between;align-items:center;gap:.6rem;box-shadow:none">
 				<div><span class="tier">${k.tiers.join('')}</span> <b>${esc(k.kw)}</b>${k.note ? `<div class="muted" style="font-size:.76rem">${esc(k.note)}</div>` : ''}</div>
-				<a class="btn btn-soft btn-sm" href="/tools/generate?topic=${encodeURIComponent(k.kw)}">글쓰기</a>
+				<a class="btn btn-soft btn-sm" href="/pipeline?kw=${encodeURIComponent(k.kw)}">글쓰기</a>
 			</div>`,
 		)
 		.join('');

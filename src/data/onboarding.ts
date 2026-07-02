@@ -38,13 +38,13 @@ export function stagePlan(p: Profile): StagePlan {
 		case 'none':
 			return { headline: '먼저 수익을 받을 그릇(채널)을 만들어요', focus: '네이버 블로그 개설 + 실명인증부터. 블로그스팟은 병행.', primaryCta: { label: '채널 개설 가이드', href: '/start' }, startPhase: 'setup', nextMilestone: '블로그 개설 완료' };
 		case 'created':
-			return { headline: '승인용 글을 채울 시간이에요', focus: '고CPC 키워드로 12~20개를 차근차근. 생성기로 빠르게.', primaryCta: { label: '글 생성하기', href: '/tools/generate' }, startPhase: 'daily', nextMilestone: '승인용 글 12개' };
+			return { headline: '승인용 글을 채울 시간이에요', focus: '고CPC 키워드로 12~20개를 차근차근. 생성기로 빠르게.', primaryCta: { label: '글 생성하기', href: '/pipeline' }, startPhase: 'daily', nextMilestone: '승인용 글 12개' };
 		case 'seeding':
 			return { headline: '승인 신청까지 한 걸음', focus: '글 수를 채우고 필수 페이지(소개·개인정보·문의)를 준비.', primaryCta: { label: '승인 체크리스트', href: '/approval' }, startPhase: 'setup', nextMilestone: '애드포스트/애드센스 신청' };
 		case 'pending':
-			return { headline: '승인 대기 중 — 멈추지 말고 글을 쌓아요', focus: '대기 중에도 고CPC 글을 계속 발행하면 승인·노출에 유리.', primaryCta: { label: '글 생성하기', href: '/tools/generate' }, startPhase: 'daily', nextMilestone: '승인 완료' };
+			return { headline: '승인 대기 중 — 멈추지 말고 글을 쌓아요', focus: '대기 중에도 고CPC 글을 계속 발행하면 승인·노출에 유리.', primaryCta: { label: '글 생성하기', href: '/pipeline' }, startPhase: 'daily', nextMilestone: '승인 완료' };
 		case 'approved':
-			return { headline: '이제 돈이 흐르게 — 매일 발행 루프', focus: '오늘의 시즌 키워드로 채널별 글을 뽑아 발행.', primaryCta: { label: '오늘의 글 생성', href: '/tools/generate' }, startPhase: 'daily', nextMilestone: '첫 정산(애드포스트 5만원)' };
+			return { headline: '이제 돈이 흐르게 — 매일 발행 루프', focus: '오늘의 시즌 키워드로 채널별 글을 뽑아 발행.', primaryCta: { label: '오늘의 글 생성', href: '/pipeline' }, startPhase: 'daily', nextMilestone: '첫 정산(애드포스트 5만원)' };
 		case 'running':
 			return { headline: '최적화·확장 단계', focus: '성과 좋은 글 재활용 + 채널/키워드 확장. 시즌 선점 발행.', primaryCta: { label: '시즌 키워드 보기', href: '/keywords' }, startPhase: 'weekly', nextMilestone: '안정적 월 수익' };
 	}

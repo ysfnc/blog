@@ -1,0 +1,308 @@
+---
+import StudioLayout from '../layouts/StudioLayout.astro';
+---
+
+<StudioLayout title="머니 파이프라인" active="pipeline">
+	<div class="pipe-hero">
+		<span class="eyebrow">키워드 → 채널 → 수익 패키지</span>
+		<h1 class="page-h">💸 머니 파이프라인</h1>
+		<p class="page-sub" style="margin-bottom:.6rem">실시간 트렌드에서 <b>돈 되는 키워드</b>를 잡고, 채널만 고르면 글·이미지·광고 배치·발행 단계까지 <b>수익 패키지</b>가 자동으로 완성됩니다.</p>
+		<div class="steps-ind" id="steps-ind">
+			<span class="si active" data-si="1">1 키워드</span><i></i>
+			<span class="si" data-si="2">2 채널</span><i></i>
+			<span class="si" data-si="3">3 수익 패키지</span>
+		</div>
+	</div>
+
+	<!-- STEP 1 -->
+	<section id="step1" class="card fade">
+		<h3 class="section-h" style="margin-top:0">① 오늘의 돈 되는 키워드</h3>
+		<div class="tabs">
+			<button class="tab active" data-src="trends">🔥 실시간 급상승</button>
+			<button class="tab" data-src="season">📅 이번 달 시즌</button>
+			<button class="tab" data-src="ever">💰 상시 고단가</button>
+		</div>
+		<div id="kw-list" class="grid" style="gap:.45rem"><p class="muted"><span class="spin"></span> 불러오는 중…</p></div>
+		<div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--line)">
+			<b style="font-size:.88rem">직접 입력 → 자동완성 확장</b>
+			<div style="display:flex;gap:.5rem;margin-top:.4rem">
+				<input id="kw-input" type="text" placeholder="예: 자동차보험 (네이버·구글 자동완성으로 확장 + 채점)" style="flex:1" />
+				<button class="btn btn-ghost" id="kw-expand">확장</button>
+			</div>
+			<div id="kw-expanded" class="grid" style="gap:.45rem;margin-top:.6rem"></div>
+		</div>
+	</section>
+
+	<!-- STEP 2 -->
+	<section id="step2" class="hidden">
+		<div class="card fade">
+			<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.4rem">
+				<h3 class="section-h" style="margin:0">② 채널 선택 <span class="muted" style="font-size:.82rem;font-weight:400">(복수 선택)</span></h3>
+				<button class="btn btn-ghost btn-sm" id="back1">← 키워드 다시</button>
+			</div>
+			<div id="picked-kw" style="margin:.5rem 0"></div>
+			<div class="grid grid-2" id="ch-cards" style="margin-top:.4rem"></div>
+			<button class="btn btn-accent" id="run" style="margin-top:1rem;width:100%;justify-content:center;font-size:1rem;padding:.8rem">🚀 수익 패키지 만들기</button>
+		</div>
+	</section>
+
+	<!-- STEP 3 -->
+	<section id="step3" class="hidden">
+		<div class="card fade" id="run-status"></div>
+		<div id="packages"></div>
+	</section>
+</StudioLayout>
+
+<style is:global>
+	.pipe-hero{background:linear-gradient(135deg,#0d3b28,#14151a 70%);border-radius:20px;padding:1.6rem 1.6rem 1.3rem;color:#fff;margin-bottom:1rem}
+	.pipe-hero .page-h{color:#fff}
+	.pipe-hero .page-sub{color:#b9c4bd}
+	.pipe-hero .eyebrow{background:rgba(18,167,99,.2);color:#7ee0b0}
+	.steps-ind{display:flex;align-items:center;gap:.5rem;margin-top:.9rem;flex-wrap:wrap}
+	.steps-ind .si{font-size:.8rem;font-weight:700;color:#7d8a83;background:rgba(255,255,255,.06);padding:.3rem .7rem;border-radius:999px}
+	.steps-ind .si.active{background:var(--accent-2);color:#04160d}
+	.steps-ind .si.done{background:rgba(18,167,99,.25);color:#7ee0b0}
+	.steps-ind i{flex:0 0 18px;height:2px;background:#2a3a32}
+	.kwrow{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.55rem .8rem;border:1px solid var(--line);border-radius:12px;background:#fff}
+	.kwrow:hover{border-color:var(--accent-2);box-shadow:var(--shadow-sm)}
+	.kwrow .meta{font-size:.75rem;color:var(--muted)}
+	.kwrow .sc{font-weight:800;color:var(--accent);font-size:.92rem;white-space:nowrap}
+	.chcard{border:2px solid var(--line);border-radius:14px;padding:.9rem 1rem;cursor:pointer;background:#fff;transition:border .12s}
+	.chcard.sel{border-color:var(--accent-2);background:var(--accent-soft)}
+	.chcard .rev{font-size:.76rem;color:var(--accent);font-weight:700;margin-top:.3rem}
+	.pkg{margin-top:1rem}
+	.pkg .ph{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.4rem}
+	.money-guide{background:var(--gold-soft);border:1px solid #ecdcb0;border-radius:10px;padding:.7rem .9rem;margin:.6rem 0;font-size:.84rem}
+	.money-guide b{color:#7a5500}
+	.pubsteps{margin:.6rem 0 0;padding:0;list-style:none}
+	.pubsteps li{display:flex;gap:.5rem;align-items:flex-start;padding:.3rem 0;font-size:.86rem}
+	.pubsteps input{width:16px;height:16px;margin-top:.2rem;accent-color:var(--accent)}
+</style>
+
+<script>
+	import { monthPlan, EVERGREEN } from '../data/keywords';
+	import { scoreMany, clusterSuggest, revenuePer1000 } from '../lib/score';
+	import { lintContent } from '../data/guard';
+
+	const $ = (id: string) => document.getElementById(id)!;
+	const esc = (s: any) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] as string);
+	let picked: any = null; // scored keyword
+	let master: any = null;
+	const selCh = new Set<string>(['naver']);
+
+	const CH: any = {
+		naver: { label: '네이버 블로그', emoji: '🟢', rev: '애드포스트 자동광고', how: '구어체 후기 + 실사 사진', color: '#03c75a' },
+		blogspot: { label: '블로그스팟(구글)', emoji: '🟠', rev: '애드센스 (달러, 천장 없음)', how: 'SEO 정보글 + 히어로 썸네일', color: '#ee6c00' },
+		threads: { label: '스레드', emoji: '⚫', rev: '블로그 유입 → 광고 수익 증폭', how: '훅 멀티포스트 + 링크', color: '#111' },
+		instagram: { label: '인스타 카드뉴스', emoji: '🟣', rev: '블로그 유입 + 도달·저장', how: '카드 6~8장 + 캡션', color: '#c4239f' },
+	};
+
+	// 채널별 수익 구조 가이드(결정적 — 자료 기반 광고 배치·발행·색인)
+	const MONEY: any = {
+		naver: {
+			ads: ['애드포스트는 자동 배치 — 글이 1,000자↑·체류시간이 길수록 광고 노출↑', '사진 6장↑(서로 다른 컷) = 체류·신뢰 ↑', '해시태그 10개로 검색 유입 확보'],
+			steps: ['본문 복사 → 네이버 스마트에디터에 붙여넣기', '소제목 아래 사진 업로드(대표 1장 지정)', '해시태그 10개 붙여넣고 발행', '서치어드바이저에서 색인 요청'],
+			links: [{ l: '네이버 글쓰기', h: 'https://blog.naver.com' }, { l: '서치어드바이저', h: 'https://searchadvisor.naver.com' }],
+		},
+		blogspot: {
+			ads: ['애드센스 자동광고 ON + 본문 중간(2번째 H2 위)·글 끝 배치가 클릭률 최적', '히어로 이미지를 본문 맨 위에(og 썸네일 자동 채택)', '메타 설명 120~160자 입력(검색 클릭률↑)'],
+			steps: ['본문 복사 → Blogger 새 글에 붙여넣기(HTML 모드 가능)', '히어로 썸네일을 본문 맨 위에 업로드', '라벨(카테고리)·메타 설명 입력 후 발행', '서치콘솔에서 색인 요청'],
+			links: [{ l: 'Blogger 글쓰기', h: 'https://www.blogger.com' }, { l: '서치콘솔', h: 'https://search.google.com/search-console' }],
+		},
+		threads: {
+			ads: ['스레드 자체 수익보다 → 마지막 포스트의 블로그 링크가 수익의 핵심', '첫 문장 훅이 전부 — 3초 안에 멈추게', '저녁 8~11시 게시가 도달 유리'],
+			steps: ['포스트를 빈 줄 단위로 나눠 순서대로 게시(답글 체인)', '마지막 답글에 블로그 링크 삽입', '해시태그 2~4개'],
+			links: [{ l: 'Threads 열기', h: 'https://www.threads.net' }],
+		},
+		instagram: {
+			ads: ['프로필 링크 + 마지막 카드 CTA가 유입 포인트', '저장 유도 문구(“저장해두세요”)가 도달 알고리즘에 유리', '카드 전체 동일 비율(4:5) 유지 — 첫 장 기준으로 잘림'],
+			steps: ['카드 이미지 전체 저장(또는 미리캔버스로 디자인)', '캡션 + 해시태그 붙여넣고 캐러셀 게시', '프로필 링크가 블로그로 향하는지 확인'],
+			links: [{ l: 'Instagram', h: 'https://www.instagram.com' }],
+		},
+	};
+
+	// ── STEP 1: 키워드 소스 ──
+	const kwList = $('kw-list');
+	function rowHtml(s: any, extra = '') {
+		return `<div class="kwrow"><div><span class="tier">${esc(s.tier)}</span> <b>${esc(s.kw)}</b> ${extra}<div class="meta">${esc(s.category)} · ${esc(s.reason)} · 1,000뷰당 ${esc(s.rev1000 || '')}</div></div><div style="display:flex;align-items:center;gap:.5rem"><span class="sc">${s.score}점</span><button class="btn btn-ghost btn-sm" data-exp="${esc(s.kw)}" title="이슈+행동요구어로 돈 되는 각도 찾기">💰 각도</button><button class="btn btn-accent btn-sm" data-pick='${esc(JSON.stringify({ kw: s.kw, tier: s.tier, category: s.category, score: s.score }))}'>선택</button></div></div>`;
+	}
+	function bindPicks(root: HTMLElement) {
+		root.querySelectorAll('[data-pick]').forEach((b) => b.addEventListener('click', () => { picked = JSON.parse((b as HTMLElement).dataset.pick!.replace(/&quot;/g, '"')); toStep(2); }));
+		root.querySelectorAll('[data-exp]').forEach((b) => b.addEventListener('click', () => {
+			($('kw-input') as HTMLInputElement).value = (b as HTMLElement).dataset.exp!;
+			expand();
+			$('kw-expanded').scrollIntoView({ behavior: 'smooth', block: 'center' });
+		}));
+	}
+	function withRev(items: any[]) { return items.map((s) => ({ ...s, rev1000: revenuePer1000(s.tier) })); }
+
+	async function loadTrends() {
+		kwList.innerHTML = '<p class="muted"><span class="spin"></span> 구글 트렌드 실시간 수집 중…</p>';
+		try {
+			const r = await fetch('/api/keywords?mode=trends');
+			const d = await r.json();
+			if (d.error) throw new Error(d.error);
+			kwList.innerHTML = `<p class="muted" style="font-size:.78rem;margin:0">${esc(d.source)} · 방금 수집 · 점수=수익 잠재력</p>` +
+				withRev(d.items).slice(0, 12).map((s: any) => rowHtml(s, s.traffic ? `<span class="badge badge-gold">검색 ${esc(s.traffic)}</span>` : '')).join('');
+			bindPicks(kwList);
+		} catch (e: any) { kwList.innerHTML = `<div class="callout callout-red">실시간 수집 실패: ${esc(e.message)} — 시즌/상시 탭을 이용하세요.</div>`; }
+	}
+	function loadSeason() {
+		const mp = monthPlan(new Date().getMonth() + 1);
+		const items = withRev(scoreMany(mp.keywords.map((k) => k.kw)));
+		kwList.innerHTML = `<p class="muted" style="font-size:.78rem;margin:0">${new Date().getMonth() + 1}월 · ${esc(mp.theme)} — ${esc(mp.strategy)}</p>` + items.map((s) => rowHtml(s)).join('');
+		bindPicks(kwList);
+	}
+	function loadEver() {
+		const kws = EVERGREEN.flatMap((g) => g.items.map((k) => k.kw));
+		const items = withRev(scoreMany(kws)).slice(0, 14);
+		kwList.innerHTML = `<p class="muted" style="font-size:.78rem;margin:0">계절 무관 · 연중 최고단가 상시 키워드</p>` + items.map((s) => rowHtml(s)).join('');
+		bindPicks(kwList);
+	}
+	document.querySelectorAll('#step1 .tab').forEach((t) => t.addEventListener('click', () => {
+		document.querySelectorAll('#step1 .tab').forEach((x) => x.classList.remove('active')); t.classList.add('active');
+		const src = (t as HTMLElement).dataset.src;
+		if (src === 'trends') loadTrends(); else if (src === 'season') loadSeason(); else loadEver();
+	}));
+	$('kw-expand').addEventListener('click', expand);
+	($('kw-input') as HTMLInputElement).addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') expand(); });
+	async function expand() {
+		const q = ($('kw-input') as HTMLInputElement).value.trim();
+		if (!q) return;
+		const box = $('kw-expanded');
+		box.innerHTML = '<p class="muted"><span class="spin"></span> 네이버·구글 자동완성 확장 중…</p>';
+		try {
+			const r = await fetch('/api/keywords?mode=expand&q=' + encodeURIComponent(q));
+			const d = await r.json();
+			if (d.error) throw new Error(d.error);
+			box.innerHTML = `<p class="muted" style="font-size:.78rem;margin:0">${esc(d.source)}</p>` + withRev(d.items).map((s: any) => rowHtml(s)).join('');
+			bindPicks(box);
+		} catch (e: any) { box.innerHTML = `<div class="callout callout-red">${esc(e.message)}</div>`; }
+	}
+
+	// ?kw= prefill → 바로 확장
+	const qp = new URLSearchParams(location.search);
+	if (qp.get('kw')) { ($('kw-input') as HTMLInputElement).value = qp.get('kw')!; expand(); }
+	loadTrends();
+
+	// ── STEP 2: 채널 ──
+	function renderCh() {
+		$('picked-kw').innerHTML = `<div class="callout callout-green"><span class="tier">${esc(picked.tier)}</span> <b>${esc(picked.kw)}</b> · ${esc(picked.category)} · 수익 잠재력 ${picked.score}점 · 1,000뷰당 ${esc(revenuePer1000(picked.tier))}</div>`;
+		$('ch-cards').innerHTML = Object.entries(CH).map(([id, c]: any) => `
+			<div class="chcard ${selCh.has(id) ? 'sel' : ''}" data-ch="${id}">
+				<b>${c.emoji} ${c.label}</b>
+				<div class="muted" style="font-size:.8rem">${c.how}</div>
+				<div class="rev">💰 ${c.rev}</div>
+			</div>`).join('');
+		$('ch-cards').querySelectorAll('[data-ch]').forEach((el) => el.addEventListener('click', () => {
+			const id = (el as HTMLElement).dataset.ch!;
+			selCh.has(id) ? selCh.delete(id) : selCh.add(id);
+			el.classList.toggle('sel');
+		}));
+	}
+	$('back1').addEventListener('click', () => toStep(1));
+
+	// ── STEP 3: 자동 실행 ──
+	$('run').addEventListener('click', runAll);
+	async function runAll() {
+		if (!selCh.size) return alert('채널을 하나 이상 선택해주세요.');
+		toStep(3);
+		const st = $('run-status');
+		const order = [...selCh];
+		st.innerHTML = `<b>🔧 ${esc(picked.kw)}</b> 패키지 생성 중…<div id="prog" style="margin-top:.5rem"></div>`;
+		const prog = $('prog');
+		const line = (t: string) => { prog.innerHTML += `<div style="font-size:.85rem;padding:.15rem 0">${t}</div>`; };
+		try {
+			line('<span class="spin"></span> 키워드 조사(마스터) — 약 30초');
+			const r = await fetch('/api/generate', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ mode: 'master', keyword: picked.kw, topic: picked.kw }) });
+			const d = await r.json();
+			if (!r.ok || d.error) throw new Error(d.error || '마스터 실패');
+			master = d.master;
+			prog.lastElementChild!.innerHTML = '✅ 키워드 조사 완료 — ' + esc(master.primaryKeyword);
+			for (const id of order) {
+				line(`<span class="spin"></span> ${CH[id].emoji} ${CH[id].label} 글 생성 — 약 40초`);
+				try {
+					const cr = await fetch('/api/generate', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ mode: 'channel', channel: id, master }) });
+					const cd = await cr.json();
+					if (!cr.ok || cd.error) throw new Error(cd.error || '실패');
+					prog.lastElementChild!.innerHTML = `✅ ${CH[id].emoji} ${CH[id].label} 완료`;
+					renderPackage(id, cd.result);
+				} catch (e: any) { prog.lastElementChild!.innerHTML = `⚠️ ${CH[id].label} 실패: ${esc(e.message)} <button class="btn btn-ghost btn-sm" onclick="location.reload()">다시</button>`; }
+			}
+			line('🎉 완료! 아래 패키지를 순서대로 발행하세요. 발행 체크는 대시보드에 기록됩니다.');
+		} catch (e: any) { st.innerHTML += `<div class="callout callout-red" style="margin-top:.5rem">${esc(e.message)}</div>`; }
+	}
+
+	function renderPackage(id: string, r: any) {
+		const c = CH[id], m = MONEY[id];
+		const lint = lintContent(r.body);
+		const lintHtml = lint.length ? lint.map((h) => `<div class="callout ${h.level === 'red' ? 'callout-red' : 'callout-gold'}" style="margin:.3rem 0;font-size:.8rem"><b>${h.level === 'red' ? '🔴' : '🟡'} ${esc(h.rule)}</b> — ${esc(h.advice)}</div>`).join('') : '<div class="callout callout-green" style="font-size:.8rem;margin:.3rem 0">✅ 안전 린터 통과</div>';
+		const tags = (r.hashtags || []).length ? `<div style="display:flex;flex-wrap:wrap;gap:.3rem;margin:.4rem 0">${r.hashtags.map((t: string) => `<span class="chip">#${esc(t)}</span>`).join('')}</div>` : '';
+		const cluster = clusterSuggest(picked.kw);
+		const clusterHtml = cluster.length ? `<div class="money-guide">🔗 <b>시리즈로 수익 키우기(내부링크)</b> — 이 글과 서로 링크하면 체류·PV가 올라갑니다: ${cluster.map((k) => `<a href="/pipeline?kw=${encodeURIComponent(k)}">${esc(k)}</a>`).join(' · ')}</div>` : '';
+		const div = document.createElement('div');
+		div.className = 'card pkg fade';
+		div.innerHTML = `
+			<div class="ph"><h3 class="section-h" style="margin:0">${c.emoji} ${c.label} 수익 패키지</h3><span class="badge badge-green">💰 ${esc(c.rev)}</span></div>
+			<div style="font-weight:800;font-size:1.05rem;margin:.4rem 0">${esc(r.title)}</div>
+			${lintHtml}
+			<div style="display:flex;justify-content:space-between;align-items:center;margin-top:.4rem"><b style="font-size:.85rem">본문</b><button class="btn btn-soft btn-sm" data-cp>본문 복사</button></div>
+			<textarea spellcheck="false" style="min-height:170px">${esc(r.body)}</textarea>
+			${tags}${(r.hashtags || []).length ? '<button class="btn btn-ghost btn-sm" data-cptag>해시태그 복사</button>' : ''}
+			<div id="pkg-img-${id}" style="margin-top:.7rem"></div>
+			<div class="money-guide">💰 <b>광고·수익 배치</b><ul style="margin:.3rem 0 0;padding-left:1.1rem">${m.ads.map((a: string) => `<li>${esc(a)}</li>`).join('')}</ul></div>
+			${clusterHtml}
+			<b style="font-size:.86rem">발행 단계</b>
+			<ul class="pubsteps">${m.steps.map((s: string, i: number) => `<li><input type="checkbox" data-st="${i}"><span>${esc(s)}</span></li>`).join('')}</ul>
+			<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem">
+				${m.links.map((l: any) => `<a class="btn btn-ghost btn-sm" href="${l.h}" target="_blank" rel="noopener">${esc(l.l)} ↗</a>`).join('')}
+				<button class="btn btn-accent btn-sm" data-done style="margin-left:auto">✔ 발행 완료 기록</button>
+			</div>`;
+		$('packages').appendChild(div);
+		div.querySelector('[data-cp]')!.addEventListener('click', () => navigator.clipboard.writeText((div.querySelector('textarea') as HTMLTextAreaElement).value));
+		div.querySelector('[data-cptag]')?.addEventListener('click', () => navigator.clipboard.writeText((r.hashtags || []).map((t: string) => '#' + t).join(' ')));
+		div.querySelector('[data-done]')!.addEventListener('click', (e) => {
+			const recs = JSON.parse(localStorage.getItem('studio-pubs-v1') || '[]');
+			recs.push({ d: new Date().toISOString().slice(0, 10), kw: picked.kw, ch: id, tier: picked.tier });
+			localStorage.setItem('studio-pubs-v1', JSON.stringify(recs));
+			(e.target as HTMLElement).textContent = '✅ 기록됨 (대시보드 반영)';
+		});
+		paintImg(id, r, div.querySelector('#pkg-img-' + id) as HTMLElement, c.color);
+	}
+
+	// 이미지(로컬 canvas — 인스타 4:5 카드, 그 외 썸네일)
+	function paintImg(id: string, r: any, box: HTMLElement, color: string) {
+		if (!r.thumbnail) return;
+		if (id === 'instagram' && (r.cards || []).length) {
+			box.innerHTML = `<b style="font-size:.85rem">카드뉴스 ${r.cards.length}장</b><div style="display:flex;gap:.5rem;overflow-x:auto;padding:.4rem 0" id="crow-${id}"></div><button class="btn btn-ghost btn-sm" data-all>전체 저장</button> <button class="btn btn-sm" style="background:#00c4cc;color:#06343a" data-miri>🎨 미리캔버스로</button>`;
+			const row = box.querySelector('#crow-' + id)!;
+			const urls: string[] = r.cards.map((cd: any, i: number) => card(1080, 1350, `${i + 1}/${r.cards.length}`, i === 0 ? r.thumbnail.headline : cd.heading, i === 0 ? r.thumbnail.sub : cd.body, color));
+			urls.forEach((u, i) => { const f = document.createElement('a'); f.href = u; f.download = `insta_${i + 1}.png`; f.innerHTML = `<img src="${u}" style="width:110px;height:138px;object-fit:cover;border-radius:8px;border:1px solid var(--line)">`; row.appendChild(f); });
+			box.querySelector('[data-all]')!.addEventListener('click', () => urls.forEach((u, i) => { const a = document.createElement('a'); a.href = u; a.download = `insta_${i + 1}.png`; a.click(); }));
+			box.querySelector('[data-miri]')!.addEventListener('click', async () => { await navigator.clipboard.writeText(['[표지] ' + r.thumbnail.headline, ...r.cards.map((cd: any, i: number) => `[카드${i + 1}] ${cd.heading}\n${cd.body}`)].join('\n\n')); let mi: any = {}; try { mi = JSON.parse(localStorage.getItem('miri-templates-v1') || '{}'); } catch {} window.open(mi.instagram || 'https://www.miricanvas.com/v2/ko/design2', '_blank'); });
+			return;
+		}
+		const w = id === 'blogspot' ? 1200 : 1080, h = id === 'blogspot' ? 630 : 1350;
+		const u = card(w, h, id.toUpperCase(), r.thumbnail.headline, r.thumbnail.sub, color);
+		box.innerHTML = `<b style="font-size:.85rem">썸네일</b><div><img src="${u}" style="max-width:280px;border-radius:8px;border:1px solid var(--line)"></div><a class="btn btn-ghost btn-sm" href="${u}" download="${id}_thumb.png" style="margin-top:.3rem">저장</a>`;
+	}
+	function card(w: number, h: number, kicker: string, headline: string, sub: string, color: string) {
+		const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d')!;
+		const g = x.createLinearGradient(0, 0, w, h); g.addColorStop(0, color); g.addColorStop(1, '#15161a'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+		const pad = w * 0.08, font = '"Apple SD Gothic Neo",-apple-system,sans-serif'; x.textBaseline = 'top';
+		x.fillStyle = 'rgba(255,255,255,.75)'; x.font = `700 ${Math.round(w * 0.03)}px ${font}`; x.fillText(kicker, pad, pad);
+		x.fillStyle = '#fff'; x.font = `800 ${Math.round(w * 0.07)}px ${font}`;
+		const wrap = (t: string, mw: number) => { const L: string[] = []; let l = ''; for (const ch of t || '') { if (x.measureText(l + ch).width > mw && l) { L.push(l); l = ch; } else l += ch; } if (l) L.push(l); return L; };
+		let y = h * 0.3; wrap(headline, w - pad * 2).slice(0, 6).forEach((l) => { x.fillText(l, pad, y); y += w * 0.086; });
+		if (sub) { x.fillStyle = '#c9ccd2'; x.font = `500 ${Math.round(w * 0.034)}px ${font}`; y += 10; wrap(sub, w - pad * 2).slice(0, 4).forEach((l) => { x.fillText(l, pad, y); y += w * 0.048; }); }
+		return c.toDataURL('image/png');
+	}
+
+	// ── 스텝 전환 ──
+	function toStep(n: number) {
+		['step1', 'step2', 'step3'].forEach((s, i) => $(s).classList.toggle('hidden', i + 1 !== n && !(n === 3 && i === 2)));
+		if (n === 2) renderCh();
+		document.querySelectorAll('.si').forEach((el) => { const k = Number((el as HTMLElement).dataset.si); el.classList.toggle('active', k === n); el.classList.toggle('done', k < n); });
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}
+</script>

@@ -3,12 +3,12 @@ import '../styles/studio.css';
 interface Props { title: string; description?: string; active?: string; }
 const { title, description = '키워드부터 채널별 글·이미지·발행까지 — 수익형 콘텐츠 스튜디오', active = '' } = Astro.props;
 const NAV = [
+	{ key: 'pipeline', label: '💸 파이프라인', href: '/pipeline' },
 	{ key: 'start', label: '대시보드', href: '/start' },
-	{ key: 'generate', label: '글 생성기', href: '/tools/generate' },
-	{ key: 'launch', label: '런처', href: '/tools/launch' },
 	{ key: 'keywords', label: '키워드', href: '/keywords' },
 	{ key: 'approval', label: '승인', href: '/approval' },
 	{ key: 'glossary', label: '가이드', href: '/glossary' },
+	{ key: 'launch', label: '런처', href: '/tools/launch' },
 ];
 ---
 
