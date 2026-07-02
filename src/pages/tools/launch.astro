@@ -3,46 +3,77 @@ import StudioLayout from '../../layouts/StudioLayout.astro';
 ---
 
 <StudioLayout title="채널 런처" active="launch">
-	<h1 class="page-h">🚀 채널 런처 — Claude로 바로 작성</h1>
-	<p class="page-sub">키워드 + 짧은 메모만 넣고 채널을 고르면, <b>그 채널 기준이 세팅된 Claude 페이지</b>가 열립니다. 거기서 엔터만 치면 완성 글. (구독 사용)</p>
+	<span class="eyebrow">⚡ 즉시 작성</span>
+	<h1 class="page-h">채널 런처 — <span class="grad-text">Claude로 바로 작성</span></h1>
+	<p class="page-sub">키워드 + 짧은 메모만 넣고 채널을 고르면, 그 채널 기준이 세팅된 Claude 페이지가 열립니다. 파이프라인보다 가볍게, 한 채널만 빠르게 쓰고 싶을 때.</p>
 
 	<div class="card">
-		<div class="field"><label>키워드 (필수)</label><input id="kw" type="text" placeholder="예: 자동차보험 비교견적" autocomplete="off" /></div>
-		<div class="field"><label>짧은 메모 (선택)</label><input id="memo" type="text" placeholder="예: 갱신 앞두고 다이렉트로 30% 줄인 경험 위주로" autocomplete="off" /></div>
-		<div class="field"><label>유입시킬 블로그 링크 (스레드/인스타용, 선택)</label><input id="link" type="text" placeholder="https://blog.naver.com/..." autocomplete="off" /></div>
-		<p id="err" class="callout callout-red hidden" style="font-size:.85rem"></p>
+		<div class="grid grid-2">
+			<div class="field"><label>키워드 (필수)</label><input id="kw" type="text" placeholder="예: 자동차보험 비교견적" autocomplete="off" /></div>
+			<div class="field"><label>짧은 메모 (선택)</label><input id="memo" type="text" placeholder="예: 갱신 앞두고 다이렉트로 30% 줄인 경험 위주로" autocomplete="off" /></div>
+		</div>
+		<div class="field" style="margin:0"><label>유입시킬 블로그 링크 (스레드/인스타용, 선택)</label><input id="link" type="text" placeholder="https://blog.naver.com/..." autocomplete="off" /></div>
+		<p id="err" class="callout callout-red hidden" style="font-size:.85rem;margin-top:.7rem"></p>
 	</div>
 
+	<div class="lgrid" id="grid"></div>
+
 	<details class="card" id="miriSet" style="margin-top:1rem">
-		<summary style="cursor:pointer;font-weight:700">🎨 미리캔버스 템플릿 설정 (인스타 카드뉴스용, 한 번만)</summary>
-		<p class="hint" style="margin-top:.5rem">분석 결과 미리캔버스는 <b>인스타 카드뉴스에만</b> 둡니다(네이버=실사사진, 블로그스팟·스레드=로컬 자동 생성이 더 효율적). 미리 만든 카드뉴스 템플릿을 <b>공유 → 링크 복사</b>해 붙여넣으면 인스타 버튼이 그 템플릿으로 바로 열립니다.</p>
+		<summary style="cursor:pointer;font-weight:750">🎨 미리캔버스 템플릿 설정 (인스타 카드뉴스용, 한 번만)</summary>
+		<p class="hint" style="margin-top:.5rem">미리캔버스는 <b>인스타 카드뉴스에만</b> 둡니다(다른 채널은 로컬 자동 생성이 더 효율적). 카드뉴스 템플릿을 <b>공유 → 링크 복사</b>해 붙여넣으면 인스타 버튼이 그 템플릿으로 바로 열립니다.</p>
 		<div id="miriInputs"></div>
 	</details>
 
-	<div class="grid grid-2" id="grid" style="margin-top:1rem"></div>
-
-	<div class="callout callout-gray" style="margin-top:1rem;font-size:.85rem">💡 <b>Claude 데스크탑으로 쓰는 법</b> — 채널마다 <code class="mono">claude-channels/네이버.md</code> 같은 팩을 프로젝트 ‘사용자 지정 지침’으로 한 번만 등록해두면, 키워드만 적어도 그 채널 글이 나옵니다.</div>
+	<div class="callout callout-gray" style="margin-top:1rem;font-size:.85rem">💡 <b>Claude 데스크탑으로 쓰는 법</b> — 채널마다 <code class="mono">claude-channels/네이버.md</code> 팩을 프로젝트 ‘사용자 지정 지침’으로 한 번 등록해두면, 키워드만 적어도 그 채널 글이 나옵니다.</div>
 </StudioLayout>
+
+<style is:global>
+	.lgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;margin-top:1rem}
+	.lcard{position:relative;border-radius:18px;padding:1.2rem 1.25rem;overflow:hidden;border:1px solid var(--line);background:var(--card);transition:transform .18s,border-color .18s,box-shadow .18s}
+	.lcard:hover{transform:translateY(-4px);border-color:var(--line-2)}
+	.lcard::before{content:'';position:absolute;inset:0;opacity:.14;background:var(--ch-grad);pointer-events:none;transition:opacity .2s}
+	.lcard:hover::before{opacity:.22}
+	.lcard .glow{position:absolute;width:180px;height:180px;border-radius:50%;filter:blur(50px);background:var(--ch-color);opacity:.35;top:-70px;right:-40px;pointer-events:none}
+	.lcard .lh{display:flex;align-items:center;gap:.6rem;position:relative}
+	.lcard .lemoji{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;background:rgba(255,255,255,.08);border:1px solid var(--line-2)}
+	.lcard h3{margin:0;font-size:1.08rem}
+	.lcard .lhow{font-size:.78rem;color:var(--muted);margin:.5rem 0 .3rem;position:relative}
+	.lcard .lrev{position:relative;display:inline-flex;align-items:center;gap:.3rem;font-size:.76rem;font-weight:750;color:var(--accent);background:var(--accent-soft);padding:.22rem .6rem;border-radius:999px;border:1px solid rgba(52,211,153,.25);margin-bottom:.9rem}
+	.lcard .lbtns{display:flex;gap:.5rem;flex-wrap:wrap;position:relative}
+</style>
 
 <script>
 	const CH = [
-		{ id: 'naver', emoji: '🟢', label: '네이버 블로그', desc: '구어체 후기 + 소제목 볼드 + 사진자리 + 해시태그 / 애드포스트', pack: `너는 네이버 블로그 전담 작가. 키워드+짧은 메모를 받아 네이버에 바로 올릴 완성 글을 써라.\n규칙: 고CPC 글감(보험·대출·세금·정부지원 등)과 행동요구(신청/구매/조회 방법) 키워드 결합. 제목=질문/후기형(키워드 앞·숫자·궁금증). 본문=해요체, 소제목 **볼드**, 소제목 아래 "> 📷 [사진: 무엇]", 짧은 문단+줄바꿈, 1000자+. 다른 채널과 다른 표현(중복 회피).\n수익화=네이버 애드포스트 자동광고(클릭유도·과장수익·약관위반 금지). 사실 날조 금지(모르면 '(확인 필요)'), 보험/대출/세금은 "정확한 내용은 공식 채널 확인 필요" 한 줄.\n출력: ①제목 ②본문 ③해시태그 10개 ④대표 사진 위에 얹을 한 줄.` },
-		{ id: 'blogspot', emoji: '🟠', label: '블로그스팟(구글)', desc: 'SEO H2/H3 정중체 + FAQ + 메타 / 애드센스', pack: `너는 블로그스팟(구글 Blogger) 전담 작가. 키워드+짧은 메모를 받아 구글에 바로 올릴 완성 글을 써라.\n규칙: 고CPC 글감(보험·대출·세금·금융 등)과 행동요구 키워드 결합. 제목=SEO(키워드 앞·숫자·궁금증). 본문=정중체(~습니다), 결론 먼저, 마크다운 ## H2 / ### H3, 표·리스트, FAQ 1개, 1500자+, 핵심 키워드 반복. E-E-A-T 경험 한 줄.\n수익화=구글 애드센스(+선택 쿠팡파트너스). 클릭유도·과장·약관위반 금지. 사실 날조 금지(모르면 '(확인 필요)'/'(출처: ___)'), YMYL 한 줄 고지.\n출력: ①제목 ②본문(H2/H3·표·FAQ) ③메타설명 120~160자 ④히어로 썸네일 headline+sub.` },
-		{ id: 'threads', emoji: '⚫', label: '스레드', desc: '짧은 멀티포스트 훅 + 블로그 유입 / 1장 이미지', needsLink: true, pack: `너는 스레드 전담 작가. 키워드+짧은 메모를 받아 스레드용 짧은 멀티포스트를 써라(목적=본 블로그 유입).\n규칙: 트렌드/이슈 훅으로 시선 멈추게. 첫 포스트=한 줄 강한 훅. 본문=3~5개 짧은 포스트를 빈 줄로 구분(각 1~2문장, 1/n). 마지막 줄 "👉 자세히는 블로그에서: (링크)". 길지 않게. 해시태그 2~4개.\n클릭유도·과장·약관위반 금지. 사실 날조 금지(모르면 '(확인 필요)').\n출력: ①스레드 본문(빈 줄 구분 + 유입 링크 자리) ②해시태그 2~4 ③이미지 1장 문구 headline+sub.` },
-		{ id: 'instagram', emoji: '🟣', label: '인스타 카드뉴스', desc: '카드 6~8장 + 캡션 + 해시태그 15~20', pack: `너는 인스타그램 카드뉴스 전담 작가. 키워드+짧은 메모를 받아 카드뉴스+캡션 완성본을 써라.\n규칙: 고CPC 주제를 쉽게 풀어 저장·공유 유도, 본 블로그 유입. 표지=강한 한 줄. 카드 6~8장(각 제목+짧은 내용 2~3문장, 1장=표지/마지막=정리·CTA). 캡션=첫 줄 훅+줄바꿈+저장 CTA. 해시태그 15~20개.\n클릭유도·과장·약관위반 금지. 사실 날조 금지(모르면 '(확인 필요)'), YMYL 한 줄 고지.\n출력: ①카드뉴스 6~8장([카드 N] 제목/내용) ②캡션 ③해시태그 15~20 ④표지 썸네일 headline+sub.` },
+		{ id: 'naver', emoji: '🟢', label: '네이버 블로그', color: '#03c75a', how: '구어체 후기 + 소제목 볼드 + 사진자리 + 해시태그', rev: '애드포스트 자동광고', pack: `너는 네이버 블로그 전담 작가. 키워드+짧은 메모를 받아 네이버에 바로 올릴 완성 글을 써라.\n규칙: 고CPC 글감(보험·대출·세금·정부지원 등)과 행동요구(신청/구매/조회 방법) 키워드 결합. 제목=질문/후기형(키워드 앞·숫자·궁금증). 본문=해요체, 소제목 **볼드**, 소제목 아래 "> 📷 [사진: 무엇]", 짧은 문단+줄바꿈, 1000자+. 다른 채널과 다른 표현(중복 회피).\n수익화=네이버 애드포스트 자동광고(클릭유도·과장수익·약관위반 금지). 사실 날조 금지(모르면 '(확인 필요)'), 보험/대출/세금은 "정확한 내용은 공식 채널 확인 필요" 한 줄.\n출력: ①제목 ②본문 ③해시태그 10개 ④대표 사진 위에 얹을 한 줄.` },
+		{ id: 'blogspot', emoji: '🟠', label: '블로그스팟(구글)', color: '#f97316', how: 'SEO H2/H3 정중체 + FAQ + 메타', rev: '애드센스 (달러, 천장 없음)', pack: `너는 블로그스팟(구글 Blogger) 전담 작가. 키워드+짧은 메모를 받아 구글에 바로 올릴 완성 글을 써라.\n규칙: 고CPC 글감(보험·대출·세금·금융 등)과 행동요구 키워드 결합. 제목=SEO(키워드 앞·숫자·궁금증). 본문=정중체(~습니다), 결론 먼저, 마크다운 ## H2 / ### H3, 표·리스트, FAQ 1개, 1500자+, 핵심 키워드 반복. E-E-A-T 경험 한 줄.\n수익화=구글 애드센스(+선택 쿠팡파트너스). 클릭유도·과장·약관위반 금지. 사실 날조 금지(모르면 '(확인 필요)'/'(출처: ___)'), YMYL 한 줄 고지.\n출력: ①제목 ②본문(H2/H3·표·FAQ) ③메타설명 120~160자 ④히어로 썸네일 headline+sub.` },
+		{ id: 'threads', emoji: '⚫', label: '스레드', color: '#64748b', how: '짧은 멀티포스트 훅 + 블로그 유입 링크', rev: '블로그 유입 → 광고 증폭', needsLink: true, pack: `너는 스레드 전담 작가. 키워드+짧은 메모를 받아 스레드용 짧은 멀티포스트를 써라(목적=본 블로그 유입).\n규칙: 트렌드/이슈 훅으로 시선 멈추게. 첫 포스트=한 줄 강한 훅. 본문=3~5개 짧은 포스트를 빈 줄로 구분(각 1~2문장, 1/n). 마지막 줄 "👉 자세히는 블로그에서: (링크)". 길지 않게. 해시태그 2~4개.\n클릭유도·과장·약관위반 금지. 사실 날조 금지(모르면 '(확인 필요)').\n출력: ①스레드 본문(빈 줄 구분 + 유입 링크 자리) ②해시태그 2~4 ③이미지 1장 문구 headline+sub.` },
+		{ id: 'instagram', emoji: '🟣', label: '인스타 카드뉴스', color: '#d946ef', how: '카드 6~8장 + 캡션 + 해시태그 15~20', rev: '도달·저장 + 블로그 유입', pack: `너는 인스타그램 카드뉴스 전담 작가. 키워드+짧은 메모를 받아 카드뉴스+캡션 완성본을 써라.\n규칙: 고CPC 주제를 쉽게 풀어 저장·공유 유도, 본 블로그 유입. 표지=강한 한 줄. 카드 6~8장(각 제목+짧은 내용 2~3문장, 1장=표지/마지막=정리·CTA). 캡션=첫 줄 훅+줄바꿈+저장 CTA. 해시태그 15~20개.\n클릭유도·과장·약관위반 금지. 사실 날조 금지(모르면 '(확인 필요)'), YMYL 한 줄 고지.\n출력: ①카드뉴스 6~8장([카드 N] 제목/내용) ②캡션 ③해시태그 15~20 ④표지 썸네일 headline+sub.` },
 	];
 	const $ = (id: string) => document.getElementById(id)!;
 	function assemble(c: any) { const kw = ($('kw') as HTMLInputElement).value.trim(), memo = ($('memo') as HTMLInputElement).value.trim(), link = ($('link') as HTMLInputElement).value.trim(); let p = c.pack + `\n\n[키워드] ${kw}`; if (memo) p += `\n[메모] ${memo}`; if (c.needsLink && link) p += `\n[블로그 링크] ${link}`; p += `\n\n위 기준으로 이 채널에 바로 올릴 수 있게 작성해줘.`; return p; }
-	function launch(c: any) { if (!($('kw') as HTMLInputElement).value.trim()) { $('err').textContent = '키워드를 입력해주세요.'; $('err').classList.remove('hidden'); return; } $('err').classList.add('hidden'); window.open('https://claude.ai/new?q=' + encodeURIComponent(assemble(c)), '_blank', 'noopener'); }
-	async function copyPrompt(c: any, btn: HTMLElement) { if (!($('kw') as HTMLInputElement).value.trim()) { $('err').textContent = '키워드를 입력해주세요.'; $('err').classList.remove('hidden'); return; } $('err').classList.add('hidden'); await navigator.clipboard.writeText(assemble(c)); const o = btn.textContent; btn.textContent = '복사됨 ✓'; setTimeout(() => (btn.textContent = o), 1200); }
+	function needKw() { if (!($('kw') as HTMLInputElement).value.trim()) { $('err').textContent = '키워드를 입력해주세요.'; $('err').classList.remove('hidden'); ($('kw') as HTMLInputElement).focus(); return true; } $('err').classList.add('hidden'); return false; }
+	function launch(c: any) { if (needKw()) return; window.open('https://claude.ai/new?q=' + encodeURIComponent(assemble(c)), '_blank', 'noopener'); }
+	async function copyPrompt(c: any, btn: HTMLElement) { if (needKw()) return; await navigator.clipboard.writeText(assemble(c)); const o = btn.textContent; btn.textContent = '복사됨 ✓'; setTimeout(() => (btn.textContent = o), 1200); }
 
-	$('grid').innerHTML = CH.map((c) => `<div class="card"><h3 style="margin:0 0 .2rem;display:flex;align-items:center;gap:.4rem">${c.emoji} ${c.label}</h3><p class="muted" style="margin:.1rem 0 .7rem;font-size:.82rem">${c.desc}</p><div style="display:flex;gap:.5rem;flex-wrap:wrap"><button class="btn btn-primary btn-sm" data-go="${c.id}">Claude에서 작성 →</button>${c.id === 'instagram' ? `<button class="btn btn-sm" style="background:#00c4cc;color:#06343a" data-mi="${c.id}">🎨 미리캔버스</button>` : ''}<button class="btn btn-ghost btn-sm" data-cp="${c.id}">프롬프트 복사</button></div></div>`).join('');
+	function hexA(hex: string, a: number) { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; }
+	$('grid').innerHTML = CH.map((c) => `
+		<div class="lcard" style="--ch-color:${c.color};--ch-grad:linear-gradient(135deg,${hexA(c.color, 1)},transparent)">
+			<div class="glow"></div>
+			<div class="lh"><div class="lemoji">${c.emoji}</div><h3>${c.label}</h3></div>
+			<div class="lhow">${c.how}</div>
+			<div class="lrev">💰 ${c.rev}</div>
+			<div class="lbtns">
+				<button class="btn btn-primary btn-sm" data-go="${c.id}">Claude에서 작성 →</button>
+				${c.id === 'instagram' ? `<button class="btn btn-sm" style="background:#00c4cc;color:#04231a" data-mi="${c.id}">🎨 미리캔버스</button>` : ''}
+				<button class="btn btn-ghost btn-sm" data-cp="${c.id}">프롬프트 복사</button>
+			</div>
+		</div>`).join('');
 	$('grid').querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => launch(CH.find((c) => c.id === (b as HTMLElement).dataset.go))));
 	$('grid').querySelectorAll('[data-cp]').forEach((b) => b.addEventListener('click', () => copyPrompt(CH.find((c) => c.id === (b as HTMLElement).dataset.cp), b as HTMLElement)));
 
 	const MIRI_KEY = 'miri-templates-v1', DEFAULT_MIRI = 'https://www.miricanvas.com/v2/ko/design2';
 	let miri: any = {}; try { miri = JSON.parse(localStorage.getItem(MIRI_KEY) || '{}'); } catch {}
 	$('grid').querySelectorAll('[data-mi]').forEach((b) => b.addEventListener('click', () => window.open(miri[(b as HTMLElement).dataset.mi!] || DEFAULT_MIRI, '_blank', 'noopener')));
-	$('miriInputs').innerHTML = CH.filter((c) => c.id === 'instagram').map((c) => `<div class="field" style="margin-top:.5rem"><label>${c.emoji} ${c.label} 템플릿 URL (1080×1080 또는 4:5 1080×1350)</label><input type="text" data-miri="${c.id}" value="${(miri[c.id] || '').replace(/"/g, '&quot;')}" placeholder="공유 → 링크 복사 한 미리캔버스 카드뉴스 템플릿 URL"></div>`).join('');
+	$('miriInputs').innerHTML = CH.filter((c) => c.id === 'instagram').map((c) => `<div class="field" style="margin-top:.5rem"><label>${c.emoji} ${c.label} 템플릿 URL (1080×1080 또는 4:5)</label><input type="text" data-miri="${c.id}" value="${(miri[c.id] || '').replace(/"/g, '&quot;')}" placeholder="공유 → 링크 복사 한 미리캔버스 카드뉴스 템플릿 URL"></div>`).join('');
 	$('miriInputs').querySelectorAll('[data-miri]').forEach((inp) => inp.addEventListener('change', () => { const v = (inp as HTMLInputElement).value.trim(); const k = (inp as HTMLElement).dataset.miri!; if (v) miri[k] = v; else delete miri[k]; localStorage.setItem(MIRI_KEY, JSON.stringify(miri)); }));
 </script>

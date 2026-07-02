@@ -22,7 +22,7 @@ import StudioLayout from '../layouts/StudioLayout.astro';
 			<button class="tab" data-src="season">📅 이번 달 시즌</button>
 			<button class="tab" data-src="ever">💰 상시 고단가</button>
 		</div>
-		<div id="kw-list" class="grid" style="gap:.45rem"><p class="muted"><span class="spin"></span> 불러오는 중…</p></div>
+		<div id="kw-list" class="grid" style="gap:.5rem"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
 		<div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--line)">
 			<b style="font-size:.88rem">직접 입력 → 자동완성 확장</b>
 			<div style="display:flex;gap:.5rem;margin-top:.4rem">
@@ -54,29 +54,32 @@ import StudioLayout from '../layouts/StudioLayout.astro';
 </StudioLayout>
 
 <style is:global>
-	.pipe-hero{background:linear-gradient(135deg,#0d3b28,#14151a 70%);border-radius:20px;padding:1.6rem 1.6rem 1.3rem;color:#fff;margin-bottom:1rem}
-	.pipe-hero .page-h{color:#fff}
-	.pipe-hero .page-sub{color:#b9c4bd}
-	.pipe-hero .eyebrow{background:rgba(18,167,99,.2);color:#7ee0b0}
-	.steps-ind{display:flex;align-items:center;gap:.5rem;margin-top:.9rem;flex-wrap:wrap}
-	.steps-ind .si{font-size:.8rem;font-weight:700;color:#7d8a83;background:rgba(255,255,255,.06);padding:.3rem .7rem;border-radius:999px}
-	.steps-ind .si.active{background:var(--accent-2);color:#04160d}
-	.steps-ind .si.done{background:rgba(18,167,99,.25);color:#7ee0b0}
-	.steps-ind i{flex:0 0 18px;height:2px;background:#2a3a32}
-	.kwrow{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.55rem .8rem;border:1px solid var(--line);border-radius:12px;background:#fff}
-	.kwrow:hover{border-color:var(--accent-2);box-shadow:var(--shadow-sm)}
+	.pipe-hero{background:linear-gradient(135deg,#0e8f63,#0aa2a2 55%,#2563eb);color:#fff;border-radius:22px;padding:1.6rem 1.7rem 1.35rem;margin-bottom:1rem;position:relative;overflow:hidden;box-shadow:0 14px 40px rgba(14,143,99,.28)}
+	.pipe-hero::after{content:'';position:absolute;inset:-50% 55% 20% -15%;background:radial-gradient(closest-side,rgba(255,255,255,.22),transparent);pointer-events:none}
+	.pipe-hero .page-h{color:#fff}.pipe-hero .page-sub{color:rgba(255,255,255,.9)}
+	.pipe-hero .eyebrow{background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.25)}
+	.pipe-hero .grad-text{background:none;-webkit-background-clip:initial;background-clip:initial;color:#fff;text-decoration:underline;text-decoration-color:rgba(255,255,255,.4);text-underline-offset:4px}
+	.steps-ind{display:flex;align-items:center;gap:.5rem;margin-top:.9rem;flex-wrap:wrap;position:relative;z-index:1}
+	.steps-ind .si{font-size:.8rem;font-weight:750;color:rgba(255,255,255,.75);background:rgba(255,255,255,.14);padding:.32rem .75rem;border-radius:999px;transition:all .3s}
+	.steps-ind .si.active{background:#fff;color:#0a8a5f}
+	.steps-ind .si.done{background:rgba(255,255,255,.28);color:#fff}
+	.steps-ind i{flex:0 0 18px;height:2px;background:rgba(255,255,255,.3)}
+	.kwrow{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.6rem .85rem;border:1px solid var(--line);border-radius:13px;background:var(--card);transition:border-color .15s,transform .15s}
+	.kwrow:hover{border-color:rgba(52,211,153,.4);transform:translateX(2px)}
 	.kwrow .meta{font-size:.75rem;color:var(--muted)}
-	.kwrow .sc{font-weight:800;color:var(--accent);font-size:.92rem;white-space:nowrap}
-	.chcard{border:2px solid var(--line);border-radius:14px;padding:.9rem 1rem;cursor:pointer;background:#fff;transition:border .12s}
-	.chcard.sel{border-color:var(--accent-2);background:var(--accent-soft)}
-	.chcard .rev{font-size:.76rem;color:var(--accent);font-weight:700;margin-top:.3rem}
+	.kwrow .sc{font-weight:850;color:var(--accent);font-size:.95rem;white-space:nowrap;text-shadow:0 0 12px rgba(52,211,153,.4)}
+	.chcard{border:1.5px solid var(--line);border-radius:15px;padding:1rem 1.1rem;cursor:pointer;background:var(--card);transition:all .18s;position:relative}
+	.chcard:hover{border-color:var(--line-2);transform:translateY(-2px)}
+	.chcard.sel{border-color:var(--accent);background:rgba(52,211,153,.08);box-shadow:0 0 0 3px var(--accent-soft)}
+	.chcard.sel::after{content:'✓';position:absolute;top:.7rem;right:.9rem;width:22px;height:22px;background:var(--grad);color:#04231a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.8rem;animation:popin .3s cubic-bezier(.2,1.6,.4,1)}
+	.chcard .rev{font-size:.76rem;color:var(--accent);font-weight:750;margin-top:.35rem}
 	.pkg{margin-top:1rem}
 	.pkg .ph{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.4rem}
-	.money-guide{background:var(--gold-soft);border:1px solid #ecdcb0;border-radius:10px;padding:.7rem .9rem;margin:.6rem 0;font-size:.84rem}
-	.money-guide b{color:#7a5500}
+	.money-guide{background:var(--gold-soft);border:1px solid rgba(251,191,36,.28);border-radius:11px;padding:.75rem .95rem;margin:.6rem 0;font-size:.84rem;color:var(--ink-2)}
+	.money-guide b{color:var(--gold)}
 	.pubsteps{margin:.6rem 0 0;padding:0;list-style:none}
-	.pubsteps li{display:flex;gap:.5rem;align-items:flex-start;padding:.3rem 0;font-size:.86rem}
-	.pubsteps input{width:16px;height:16px;margin-top:.2rem;accent-color:var(--accent)}
+	.pubsteps li{display:flex;gap:.55rem;align-items:flex-start;padding:.32rem 0;font-size:.86rem}
+	.pubsteps input{width:17px;height:17px;margin-top:.15rem;accent-color:var(--accent)}
 </style>
 
 <script>
@@ -202,35 +205,71 @@ import StudioLayout from '../layouts/StudioLayout.astro';
 	}
 	$('back1').addEventListener('click', () => toStep(1));
 
-	// ── STEP 3: 자동 실행 ──
+	// ── STEP 3: 자동 실행 (살아있는 진행 타임라인) ──
 	$('run').addEventListener('click', runAll);
+	// 생성 중 회전 문구(사용자가 '살아있다'고 느끼게)
+	const CHATTER: Record<string, string[]> = {
+		master: ['실시간 검색 의도 분석 중…', '고단가 광고 카테고리 매칭…', '연관 키워드 확장…', '핵심 포인트 정리…', '수익 각도 잡는 중…'],
+		channel: ['채널 톤 맞추는 중…', '제목 후보 고르는 중…', '본문 구조 짜는 중…', '광고 배치 지점 계산…', '해시태그·썸네일 문구 생성…', '안전 린터 준비…'],
+	};
+	function makeStage(id: string, label: string, sub: string) {
+		return `<div class="stage wait" id="stg-${id}"><div class="ic">${label.slice(0, 2)}</div><div style="flex:1;min-width:0"><div class="st-label">${label}</div><div class="st-sub" id="stg-sub-${id}">${sub}</div></div><div class="st-time" id="stg-time-${id}"></div></div>`;
+	}
+	function startStage(id: string, kind: 'master' | 'channel') {
+		const s = document.getElementById('stg-' + id)!; s.classList.remove('wait'); s.classList.add('doing');
+		(s.querySelector('.ic') as HTMLElement).textContent = '';
+		const t0 = performance.now();
+		const timeEl = document.getElementById('stg-time-' + id)!;
+		const subEl = document.getElementById('stg-sub-' + id)!;
+		const msgs = CHATTER[kind]; let mi = 0;
+		const iv = setInterval(() => { timeEl.textContent = ((performance.now() - t0) / 1000).toFixed(0) + 's'; }, 200);
+		const iv2 = setInterval(() => { subEl.textContent = msgs[mi % msgs.length]; mi++; }, 2600);
+		subEl.textContent = msgs[0];
+		return () => { clearInterval(iv); clearInterval(iv2); return (performance.now() - t0) / 1000; };
+	}
+	function finishStage(id: string, sec: number, sub: string) {
+		const s = document.getElementById('stg-' + id)!; s.classList.remove('doing'); s.classList.add('done');
+		(s.querySelector('.ic') as HTMLElement).textContent = '✓';
+		document.getElementById('stg-sub-' + id)!.textContent = sub;
+		document.getElementById('stg-time-' + id)!.textContent = sec.toFixed(0) + 's';
+	}
+	function failStage(id: string, msg: string) {
+		const s = document.getElementById('stg-' + id)!; s.classList.remove('doing'); s.classList.add('fail');
+		(s.querySelector('.ic') as HTMLElement).textContent = '⚠';
+		document.getElementById('stg-sub-' + id)!.innerHTML = `<span style="color:var(--danger)">${esc(msg)}</span>`;
+	}
+
 	async function runAll() {
 		if (!selCh.size) return alert('채널을 하나 이상 선택해주세요.');
 		toStep(3);
-		const st = $('run-status');
 		const order = [...selCh];
-		st.innerHTML = `<b>🔧 ${esc(picked.kw)}</b> 패키지 생성 중…<div id="prog" style="margin-top:.5rem"></div>`;
-		const prog = $('prog');
-		const line = (t: string) => { prog.innerHTML += `<div style="font-size:.85rem;padding:.15rem 0">${t}</div>`; };
+		const total = 1 + order.length; let done = 0;
+		$('run-status').innerHTML = `
+			<div class="ph"><h3 class="section-h" style="margin:0">🔧 <b>${esc(picked.kw)}</b> 수익 패키지 생성</h3><span class="badge badge-green" id="ov-pct">0%</span></div>
+			<div class="bar" style="margin:.6rem 0"><i id="ov-bar"></i></div>
+			<div class="flowline">${makeStage('master', '🔎 키워드 조사', '대기 중')}${order.map((id) => makeStage(id, `${CH[id].emoji} ${CH[id].label}`, '대기 중')).join('')}</div>
+			<div id="done-msg" style="margin-top:.7rem"></div>`;
+		const bump = () => { done++; const p = Math.round((done / total) * 100); ($('ov-bar') as HTMLElement).style.width = p + '%'; $('ov-pct').textContent = p + '%'; };
+
+		let stop = startStage('master', 'master');
 		try {
-			line('<span class="spin"></span> 키워드 조사(마스터) — 약 30초');
 			const r = await fetch('/api/generate', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ mode: 'master', keyword: picked.kw, topic: picked.kw }) });
 			const d = await r.json();
 			if (!r.ok || d.error) throw new Error(d.error || '마스터 실패');
-			master = d.master;
-			prog.lastElementChild!.innerHTML = '✅ 키워드 조사 완료 — ' + esc(master.primaryKeyword);
-			for (const id of order) {
-				line(`<span class="spin"></span> ${CH[id].emoji} ${CH[id].label} 글 생성 — 약 40초`);
-				try {
-					const cr = await fetch('/api/generate', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ mode: 'channel', channel: id, master }) });
-					const cd = await cr.json();
-					if (!cr.ok || cd.error) throw new Error(cd.error || '실패');
-					prog.lastElementChild!.innerHTML = `✅ ${CH[id].emoji} ${CH[id].label} 완료`;
-					renderPackage(id, cd.result);
-				} catch (e: any) { prog.lastElementChild!.innerHTML = `⚠️ ${CH[id].label} 실패: ${esc(e.message)} <button class="btn btn-ghost btn-sm" onclick="location.reload()">다시</button>`; }
-			}
-			line('🎉 완료! 아래 패키지를 순서대로 발행하세요. 발행 체크는 대시보드에 기록됩니다.');
-		} catch (e: any) { st.innerHTML += `<div class="callout callout-red" style="margin-top:.5rem">${esc(e.message)}</div>`; }
+			master = d.master; finishStage('master', stop(), '완료 · ' + esc(master.primaryKeyword)); bump();
+		} catch (e: any) { stop(); failStage('master', e.message); return; }
+
+		for (const id of order) {
+			stop = startStage(id, 'channel');
+			try {
+				const cr = await fetch('/api/generate', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ mode: 'channel', channel: id, master }) });
+				const cd = await cr.json();
+				if (!cr.ok || cd.error) throw new Error(cd.error || '실패');
+				finishStage(id, stop(), '완료 · 패키지 생성됨'); bump();
+				renderPackage(id, cd.result);
+			} catch (e: any) { stop(); failStage(id, e.message); bump(); }
+		}
+		$('done-msg').innerHTML = `<div class="callout callout-green">🎉 완료! 아래 패키지를 순서대로 발행하세요. ‘발행 완료 기록’을 누르면 대시보드 실적에 쌓입니다.</div>`;
 	}
 
 	function renderPackage(id: string, r: any) {

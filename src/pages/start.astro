@@ -40,23 +40,23 @@ import StudioLayout from '../layouts/StudioLayout.astro';
 	try { profile = JSON.parse(localStorage.getItem('studio-profile-v1') || 'null'); } catch {}
 	const hero = $('hero');
 	if (!profile) {
-		hero.innerHTML = `<div class="card" style="background:var(--ink);color:#fff;border:0">
-			<span class="eyebrow" style="background:#2a2c33;color:#9fe7c1">1:1 맞춤 설정</span>
-			<h1 class="page-h" style="color:#fff;margin:.5rem 0 .3rem">안녕하세요 👋 먼저 나에게 맞게 설정할까요?</h1>
-			<p style="color:#c7cad1;margin:0 0 1rem">지금 단계에 맞춰 대시보드를 설계해 드려요.</p>
+		hero.innerHTML = `<div class="hero-card fade">
+			<span class="eyebrow">1:1 맞춤 설정</span>
+			<h1 class="page-h" style="margin:.5rem 0 .3rem">안녕하세요 👋 먼저 <span class="grad-text">나에게 맞게</span> 설정할까요?</h1>
+			<p class="muted" style="margin:0 0 1rem">지금 단계에 맞춰 대시보드를 설계해 드려요.</p>
 			<a class="btn btn-accent" href="/onboarding">시작 설정하기 →</a></div>`;
 	} else {
 		const sp = stagePlan(profile);
 		const hi = profile.name ? `${esc(profile.name)}님,` : '안녕하세요,';
-		hero.innerHTML = `<div class="card" style="background:var(--ink);color:#fff;border:0">
-			<span class="eyebrow" style="background:#2a2c33;color:#9fe7c1">${esc(profile.goal)} · ${esc((profile.channels||[]).length)}개 채널${profile.niche ? ' · ' + esc(profile.niche) : ''}</span>
-			<h1 class="page-h" style="color:#fff;margin:.5rem 0 .3rem">${hi} ${esc(sp.headline)}</h1>
-			<p style="color:#c7cad1;margin:0 0 1rem">${esc(sp.focus)}</p>
+		hero.innerHTML = `<div class="hero-card fade">
+			<span class="eyebrow">${esc(profile.goal)} · ${esc((profile.channels||[]).length)}개 채널${profile.niche ? ' · ' + esc(profile.niche) : ''}</span>
+			<h1 class="page-h" style="margin:.5rem 0 .3rem">${hi} <span class="grad-text">${esc(sp.headline)}</span></h1>
+			<p class="muted" style="margin:0 0 1rem">${esc(sp.focus)}</p>
 			<div style="display:flex;gap:.5rem;flex-wrap:wrap">
 				<a class="btn btn-accent" href="${sp.primaryCta.href}">${esc(sp.primaryCta.label)} →</a>
-				<a class="btn btn-ghost" style="background:#2a2c33;color:#fff;border-color:#3a3d45" href="/onboarding">설정 변경</a>
+				<a class="btn btn-ghost" href="/onboarding">설정 변경</a>
 			</div>
-			<p style="color:#8a8e96;margin:.8rem 0 0;font-size:.82rem">다음 목표 · ${esc(sp.nextMilestone)}</p></div>`;
+			<p style="color:var(--muted-2);margin:.8rem 0 0;font-size:.82rem">다음 목표 · ${esc(sp.nextMilestone)}</p></div>`;
 	}
 
 	// ── 발행 실적(파이프라인 '발행 완료' 기록) ──
@@ -65,9 +65,15 @@ import StudioLayout from '../layouts/StudioLayout.astro';
 	const week = pubs.filter((p) => (Date.now() - new Date(p.d).getTime()) / 86400000 <= 7).length;
 	const gold = pubs.filter((p) => (p.tier || '').includes('💰💰💰')).length;
 	$('pub-stats').innerHTML = `
-		<div class="card" style="text-align:center"><div class="muted" style="font-size:.78rem">총 발행</div><b style="font-size:1.5rem">${pubs.length}건</b></div>
-		<div class="card" style="text-align:center;background:var(--accent-soft);border-color:#bfe5d0"><div class="muted" style="font-size:.78rem">최근 7일</div><b style="font-size:1.5rem;color:var(--accent)">${week}건</b></div>
-		<div class="card" style="text-align:center"><div class="muted" style="font-size:.78rem">💰💰💰 고단가 글</div><b style="font-size:1.5rem">${gold}건</b></div>`;
+		<div class="card" style="text-align:center"><div class="muted" style="font-size:.78rem">총 발행</div><b style="font-size:1.6rem" data-count="${pubs.length}">0</b><span style="font-size:.9rem">건</span></div>
+		<div class="card" style="text-align:center;border-color:rgba(52,211,153,.3);background:var(--accent-soft)"><div class="muted" style="font-size:.78rem">최근 7일</div><b style="font-size:1.6rem;color:var(--accent)" data-count="${week}">0</b><span style="font-size:.9rem;color:var(--accent)">건</span></div>
+		<div class="card" style="text-align:center"><div class="muted" style="font-size:.78rem">💰💰💰 고단가 글</div><b style="font-size:1.6rem" data-count="${gold}">0</b><span style="font-size:.9rem">건</span></div>`;
+	// 숫자 카운트업 연출
+	document.querySelectorAll<HTMLElement>('[data-count]').forEach((el) => {
+		const target = Number(el.dataset.count || 0); const t0 = performance.now();
+		const tick = (t: number) => { const p = Math.min(1, (t - t0) / 700); el.textContent = String(Math.round(target * (1 - Math.pow(1 - p, 3)))); if (p < 1) requestAnimationFrame(tick); };
+		requestAnimationFrame(tick);
+	});
 
 	// ── 이번 달 시즌 키워드 ──
 	const m = new Date().getMonth() + 1;
@@ -76,9 +82,9 @@ import StudioLayout from '../layouts/StudioLayout.astro';
 	$('month-strategy').textContent = '💡 ' + mp.strategy;
 	$('season-kws').innerHTML = mp.keywords
 		.map(
-			(k) => `<div class="card" style="padding:.6rem .8rem;display:flex;justify-content:space-between;align-items:center;gap:.6rem;box-shadow:none">
+			(k) => `<div class="card hover" style="padding:.6rem .85rem;display:flex;justify-content:space-between;align-items:center;gap:.6rem">
 				<div><span class="tier">${k.tiers.join('')}</span> <b>${esc(k.kw)}</b>${k.note ? `<div class="muted" style="font-size:.76rem">${esc(k.note)}</div>` : ''}</div>
-				<a class="btn btn-soft btn-sm" href="/pipeline?kw=${encodeURIComponent(k.kw)}">글쓰기</a>
+				<a class="btn btn-soft btn-sm" href="/pipeline?kw=${encodeURIComponent(k.kw)}">글쓰기 →</a>
 			</div>`,
 		)
 		.join('');
