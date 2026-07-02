@@ -50,6 +50,8 @@ import StudioLayout from '../../layouts/StudioLayout.astro';
 		{ id: 'instagram', emoji: '🟣', label: '인스타 카드뉴스', color: '#d946ef', how: '카드 6~8장 + 캡션 + 해시태그 15~20', rev: '도달·저장 + 블로그 유입', pack: `너는 인스타그램 카드뉴스 전담 작가. 키워드+짧은 메모를 받아 카드뉴스+캡션 완성본을 써라.\n규칙: 고CPC 주제를 쉽게 풀어 저장·공유 유도, 본 블로그 유입. 표지=강한 한 줄. 카드 6~8장(각 제목+짧은 내용 2~3문장, 1장=표지/마지막=정리·CTA). 캡션=첫 줄 훅+줄바꿈+저장 CTA. 해시태그 15~20개.\n클릭유도·과장·약관위반 금지. 사실 날조 금지(모르면 '(확인 필요)'), YMYL 한 줄 고지.\n출력: ①카드뉴스 6~8장([카드 N] 제목/내용) ②캡션 ③해시태그 15~20 ④표지 썸네일 headline+sub.` },
 	];
 	const $ = (id: string) => document.getElementById(id)!;
+	const _qp = new URLSearchParams(location.search);
+	if (_qp.get('kw')) ($('kw') as HTMLInputElement).value = _qp.get('kw')!;
 	function assemble(c: any) { const kw = ($('kw') as HTMLInputElement).value.trim(), memo = ($('memo') as HTMLInputElement).value.trim(), link = ($('link') as HTMLInputElement).value.trim(); let p = c.pack + `\n\n[키워드] ${kw}`; if (memo) p += `\n[메모] ${memo}`; if (c.needsLink && link) p += `\n[블로그 링크] ${link}`; p += `\n\n위 기준으로 이 채널에 바로 올릴 수 있게 작성해줘.`; return p; }
 	function needKw() { if (!($('kw') as HTMLInputElement).value.trim()) { $('err').textContent = '키워드를 입력해주세요.'; $('err').classList.remove('hidden'); ($('kw') as HTMLInputElement).focus(); return true; } $('err').classList.add('hidden'); return false; }
 	function launch(c: any) { if (needKw()) return; window.open('https://claude.ai/new?q=' + encodeURIComponent(assemble(c)), '_blank', 'noopener'); }

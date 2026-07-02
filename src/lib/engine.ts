@@ -75,8 +75,7 @@ async function runViaCLI<T>(system: string, user: string, schema: z.ZodType<T>, 
 		stdout = r.stdout;
 	} catch (e) {
 		const err = e as NodeJS.ErrnoException;
-		if (err.code === 'ENOENT')
-			throw new Error('claude CLI 를 찾지 못했습니다. Claude Code 로그인(구독)하거나 GEN_ENGINE=api 로 전환하세요.');
+		if (err.code === 'ENOENT') throw new Error('CLI_MISSING');
 		throw new Error('claude CLI 실행 실패: ' + (err.message || 'unknown'));
 	}
 
@@ -108,8 +107,23 @@ async function runViaAPI<T>(system: string, user: string, schema: z.ZodType<T>):
 	return res.parsed_output as T;
 }
 
+function hasApiKey(): boolean {
+	return !!(import.meta.env.ANTHROPIC_API_KEY ?? (typeof process !== 'undefined' ? process.env.ANTHROPIC_API_KEY : undefined));
+}
+
 async function runJSON<T>(system: string, user: string, schema: z.ZodType<T>, shape: string): Promise<T> {
-	return chosenEngine() === 'api' ? runViaAPI(system, user, schema) : runViaCLI(system, user, schema, shape);
+	if (chosenEngine() === 'api') return runViaAPI(system, user, schema);
+	try {
+		return await runViaCLI(system, user, schema, shape);
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : '';
+		// 배포(Vercel) 등 claude CLI가 없는 환경: API 키가 있으면 자동 폴백, 없으면 공유모드 신호
+		if (msg === 'CLI_MISSING') {
+			if (hasApiKey()) return runViaAPI(system, user, schema);
+			throw new Error('ENGINE_UNAVAILABLE');
+		}
+		throw e;
+	}
 }
 
 // ── 공개 API ──────────────────────────────────────────────

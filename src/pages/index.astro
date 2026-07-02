@@ -1,49 +1,43 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
-import Header from '../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import StudioLayout from '../layouts/StudioLayout.astro';
+const FEATURES = [
+	{ icon: '🔑', title: '돈 되는 키워드', desc: '실시간 급상승 + 12개월 시즌 캘린더 + 고단가 카테고리 채점 — 뭘 써야 돈이 되는지 점수로 보여줘요.' },
+	{ icon: '✍️', title: '채널별 맞춤 글', desc: '네이버·블로그스팟·스레드·인스타. 채널만 고르면 톤·형식·해시태그·이미지까지 채널에 맞게 완성.' },
+	{ icon: '💰', title: '수익 구조까지', desc: '광고 배치 가이드·발행 단계·색인 등록·내부링크 시리즈까지 — 글이 아니라 "수익 패키지"가 나와요.' },
+	{ icon: '🛡️', title: '안전 가드', desc: '펍벤·클릭유도·과장 표현을 발행 전에 잡아주는 린터. 계정 사고를 막아요.' },
+];
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This template
-				serves as a lightweight, minimally-styled starting point for anyone looking to build a personal
-				website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to
-				<a href="https://docs.astro.build/">read the docs</a>
-				or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out
-				<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>
-				by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
-		</main>
-		<Footer />
-	</body>
-</html>
+<StudioLayout title="수익형 콘텐츠 스튜디오" active="">
+	<div class="hero-card fade" style="text-align:center">
+		<span class="eyebrow">키워드 → 채널 → 수익 패키지</span>
+		<h1 class="page-h" style="font-size:clamp(1.9rem,5.5vw,2.6rem);margin:.6rem 0 .4rem">돈 되는 키워드부터<br /><span class="grad-text">채널별 글·발행까지</span> 한 번에</h1>
+		<p class="muted" style="max-width:620px;margin:0 auto 1.2rem;font-size:1.02rem">실시간 트렌드에서 고단가 키워드를 잡고, 채널만 고르면 광고 수익 구조가 걸린 완성 콘텐츠가 나옵니다.</p>
+		<div style="display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap">
+			<a class="btn btn-accent" style="padding:.8rem 1.4rem;font-size:1.02rem" href="/pipeline">💸 지금 시작하기</a>
+			<a class="btn btn-ghost" style="padding:.8rem 1.4rem;font-size:1.02rem" href="/onboarding">1:1 맞춤 설정</a>
+		</div>
+	</div>
+
+	<div class="grid grid-2" style="margin-top:1.2rem">
+		{FEATURES.map((f) => (
+			<div class="card hover">
+				<div style="font-size:1.6rem">{f.icon}</div>
+				<h3 style="margin:.4rem 0 .2rem;font-size:1.1rem">{f.title}</h3>
+				<p class="muted" style="margin:0;font-size:.9rem">{f.desc}</p>
+			</div>
+		))}
+	</div>
+
+	<div class="card" style="margin-top:1.2rem">
+		<h3 class="section-h" style="margin-top:0">이렇게 씁니다</h3>
+		<div class="grid grid-3">
+			<div><b class="grad-text" style="font-size:1.3rem">1</b><div style="font-weight:700">키워드 고르기</div><div class="muted" style="font-size:.86rem">실시간 트렌드·시즌·상시에서 점수 높은 걸 선택</div></div>
+			<div><b class="grad-text" style="font-size:1.3rem">2</b><div style="font-weight:700">채널 선택</div><div class="muted" style="font-size:.86rem">네이버·블로그스팟·스레드·인스타 중 원하는 채널</div></div>
+			<div><b class="grad-text" style="font-size:1.3rem">3</b><div style="font-weight:700">수익 패키지 완성</div><div class="muted" style="font-size:.86rem">글·이미지·광고배치·발행단계까지 자동으로</div></div>
+		</div>
+		<div style="margin-top:1rem;text-align:center"><a class="btn btn-accent" href="/pipeline">파이프라인 열기 →</a></div>
+	</div>
+
+	<p class="hint" style="text-align:center;margin-top:1.4rem">키워드 발굴·수익 채점·가이드는 누구나 무료로 사용할 수 있어요. · <a href="/glossary">가이드</a> · <a href="/keywords">키워드</a> · <a href="/tools/launch">런처</a></p>
+</StudioLayout>

@@ -37,6 +37,8 @@ export const POST: APIRoute = async ({ request }) => {
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : '생성 중 오류가 발생했습니다.';
 		if (msg === 'REFUSAL') return json({ error: '안전 정책에 의해 거부되었습니다. 주제를 바꿔보세요.' }, 422);
+		if (msg === 'ENGINE_UNAVAILABLE')
+			return json({ error: '공유 배포판에서는 원클릭 생성이 꺼져 있어요. 아래 ‘런처’로 각자 Claude에서 바로 작성하세요.', shareMode: true }, 503);
 		return json({ error: msg }, 500);
 	}
 };

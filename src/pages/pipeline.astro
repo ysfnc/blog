@@ -255,6 +255,7 @@ import StudioLayout from '../layouts/StudioLayout.astro';
 		try {
 			const r = await fetch('/api/generate', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ mode: 'master', keyword: picked.kw, topic: picked.kw }) });
 			const d = await r.json();
+			if (d.shareMode) { stop(); shareModeNotice(); return; }
 			if (!r.ok || d.error) throw new Error(d.error || '마스터 실패');
 			master = d.master; finishStage('master', stop(), '완료 · ' + esc(master.primaryKeyword)); bump();
 		} catch (e: any) { stop(); failStage('master', e.message); return; }
@@ -270,6 +271,18 @@ import StudioLayout from '../layouts/StudioLayout.astro';
 			} catch (e: any) { stop(); failStage(id, e.message); bump(); }
 		}
 		$('done-msg').innerHTML = `<div class="callout callout-green">🎉 완료! 아래 패키지를 순서대로 발행하세요. ‘발행 완료 기록’을 누르면 대시보드 실적에 쌓입니다.</div>`;
+	}
+
+	function shareModeNotice() {
+		const kw = encodeURIComponent(picked.kw);
+		$('run-status').innerHTML = `<div class="callout callout-gold" style="font-size:.92rem">
+			<b>🔗 공유 버전이라 원클릭 자동 생성은 꺼져 있어요.</b><br>대신 아래 <b>런처</b>에서 채널을 고르면 <b>각자 본인 Claude</b>로 이 키워드가 세팅된 채 열립니다 — 누구나 무료로 바로 작성할 수 있어요.
+			<div style="margin-top:.7rem;display:flex;gap:.5rem;flex-wrap:wrap">
+				<a class="btn btn-accent" href="/tools/launch?kw=${kw}">🚀 런처로 "${esc(picked.kw)}" 작성하기</a>
+				<a class="btn btn-ghost" href="/keywords">다른 키워드 보기</a>
+			</div>
+			<div class="hint" style="margin-top:.6rem">키워드 발굴·수익 채점·시즌 캘린더·가이드는 여기서 그대로 쓸 수 있습니다.</div>
+		</div>`;
 	}
 
 	function renderPackage(id: string, r: any) {

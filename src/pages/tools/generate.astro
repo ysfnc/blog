@@ -65,6 +65,7 @@ import StudioLayout from '../../layouts/StudioLayout.astro';
 		try {
 			const r = await fetch('/api/generate', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ mode: 'master', topic, keyword }) });
 			const d = await r.json();
+			if (d.shareMode) { $('status').textContent = ''; err('공유 버전에서는 원클릭 생성이 꺼져 있어요 → 런처에서 각자 Claude로 작성하세요: /tools/launch'); return; }
 			if (!r.ok || d.error) throw new Error(d.error || '실패');
 			master = d.master; renderMaster(); $('status').textContent = '완료 ✓ 아래에서 채널을 골라 글을 받으세요.';
 		} catch (e: any) { err(e.message); $('status').textContent = ''; }
